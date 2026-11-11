@@ -1,6 +1,6 @@
 {
   "name": "waypoint",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Slides you can present in order or steer: jump to any slide mid-talk, then step back to where you were.",
   "author": "PyMite6941",
@@ -28,6 +28,13 @@
     "linux": {
       "target": [
         {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
           "target": "AppImage",
           "arch": [
             "x64",
@@ -37,7 +44,9 @@
       ],
       "category": "Office",
       "icon": "build/icon.png",
-      "artifactName": "${productName}-${arch}.${ext}"
+      "artifactName": "${productName}-${arch}.${ext}",
+      "maintainer": "PyMite6941 <226280841+PyMite6941@users.noreply.github.com>",
+      "synopsis": "Slides you can present in order or steer"
     },
     "mac": {
       "target": "dmg",
@@ -54,13 +63,11 @@
       "artifactName": "${productName}-Setup.${ext}"
     }
   },
-  "dependencies": {
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1"
-  },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.3.0",
     "electron": "^45.2.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "vite": "^8.3.7"
   },
   "repository": {

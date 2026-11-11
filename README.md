@@ -21,15 +21,23 @@ Slides you can present in order, or steer. Arrow keys and clickers work as they 
 curl.exe -L -o "$env:TEMP\Waypoint-Setup.exe" https://github.com/PyMite6941/waypoint/releases/latest/download/Waypoint-Setup.exe; & "$env:TEMP\Waypoint-Setup.exe"
 ```
 
-**Linux** (x86-64 and ARM64, including Raspberry Pi):
+**Debian, Ubuntu, Raspberry Pi OS** (x86-64 and ARM64). This installs the app with everything it needs and adds it to the applications menu:
+
+```sh
+curl -L -o /tmp/waypoint.deb "https://github.com/PyMite6941/waypoint/releases/latest/download/Waypoint-$(dpkg --print-architecture).deb" && sudo apt install -y /tmp/waypoint.deb
+```
+
+Then run `waypoint` or pick Waypoint from the menu. Remove it with `sudo apt remove waypoint`.
+
+**Other Linux** (portable AppImage, nothing installed system-wide):
 
 ```sh
 curl -L -o Waypoint.AppImage "https://github.com/PyMite6941/waypoint/releases/latest/download/Waypoint-$(uname -m | sed s/aarch64/arm64/).AppImage"
 chmod +x Waypoint.AppImage
-./Waypoint.AppImage
+./Waypoint.AppImage --appimage-extract-and-run
 ```
 
-If the AppImage complains about FUSE, either install it (`sudo apt install libfuse2`, or `libfuse2t64` on Ubuntu 24.04 and newer) or run `./Waypoint.AppImage --appimage-extract-and-run`.
+`--appimage-extract-and-run` makes it work on systems without FUSE 2 (most current distributions); with `libfuse2` installed you can leave it off and it starts faster.
 
 **macOS:** download `Waypoint-arm64.dmg` from [Releases](https://github.com/PyMite6941/waypoint/releases/latest), open it and drag the app to Applications.
 
