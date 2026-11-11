@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waypoint guide</title>
+<style>
+  :root { color-scheme: light dark; --line: #dbd8d0; --dim: #726d63; --accent: #b4430f; }
+  @media (prefers-color-scheme: dark) { :root { --line: #37373c; --dim: #9a968d; --accent: #f08a4b; } body { background: #19191b; color: #e9e7e2; } }
+  body { max-width: 720px; margin: 0 auto; padding: 48px 20px 96px; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1 { font-size: 2em; margin: 0 0 .2em; } h2 { margin: 2em 0 .4em; font-size: 1.25em; }
+  a { color: var(--accent); } .lead { color: var(--dim); margin-top: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  td, th { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--dim); font-weight: 600; } td:first-child { white-space: nowrap; }
+  kbd, code { font: .85em ui-monospace, Menlo, Consolas, monospace; padding: .1em .4em; border: 1px solid var(--line); border-radius: 4px; }
+  pre { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; } pre code { border: 0; padding: 0; }
+</style>
+</head>
+<body>
+<h1>Waypoint</h1>
+<p class="lead">Slides you can present in order, or steer. <a href="../">Open the editor</a></p>
+
+<h2>The idea</h2>
+<p>Most slide tools assume a talk runs from the first slide to the last. Waypoint keeps that: arrow keys, the space bar and a clicker all move through the deck in order. It also lets you leave the path at any moment. Jump to any slide by number, pick one from a grid, click a link on the slide, or choose one from your own screen, then press <kbd>Backspace</kbd> to return to where you were.</p>
+
+<h2>Building a deck</h2>
+<ul>
+  <li><strong>Text</strong>, <strong>Box</strong>, <strong>Circle</strong> and <strong>Image</strong> add things to the slide. You can also paste or drag an image in.</li>
+  <li>Drag to move, drag a corner to resize. Movement snaps to a grid; hold <kbd>Alt</kbd> to place freely, <kbd>Shift</kbd> while resizing to keep proportions.</li>
+  <li>Double-click text to edit it. A text box with a fill colour becomes a button-style label with centred text.</li>
+  <li>The panel on the right changes the selected item, or the slide itself when nothing is selected.</li>
+  <li>Drag slides in the left strip to reorder them. The theme menu restyles the whole deck.</li>
+  <li>Speaker notes go in the box under the slide.</li>
+</ul>
+
+<h2>Steering a talk</h2>
+<p>There are two ways to set up jumps ahead of time, both in the right-hand panel:</p>
+<ul>
+  <li><strong>Links to</strong> (with an item selected): clicking that item during the show jumps to the chosen slide. Use this for menus the audience can see.</li>
+  <li><strong>Next choices</strong> (with nothing selected): slides you might want after this one. They appear as buttons in the control bar and in Presenter view, where only you see them.</li>
+</ul>
+<p>Links and choices follow the slide, not its number, so reordering never breaks them.</p>
+
+<h2>Presenting</h2>
+<p><strong>Present</strong> starts a full-screen show from the current slide. Move the mouse to bring up the control bar.</p>
+<table>
+  <tr><th>Key</th><th>Does</th></tr>
+  <tr><td><kbd>→</kbd> <kbd>↓</kbd> <kbd>Space</kbd> <kbd>Enter</kbd> <kbd>PgDn</kbd>, click</td><td>Next slide in order</td></tr>
+  <tr><td><kbd>←</kbd> <kbd>↑</kbd> <kbd>PgUp</kbd></td><td>Previous slide in order</td></tr>
+  <tr><td>a number, then <kbd>Enter</kbd></td><td>Jump to that slide</td></tr>
+  <tr><td><kbd>G</kbd> or <kbd>Tab</kbd></td><td>Grid of every slide. Arrows and <kbd>Enter</kbd>, or click</td></tr>
+  <tr><td><kbd>Backspace</kbd></td><td>Back to the slide you were on before, however you left it</td></tr>
+  <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>First or last slide</td></tr>
+  <tr><td><kbd>B</kbd> or <kbd>.</kbd></td><td>Black out the screen, and bring it back</td></tr>
+  <tr><td><kbd>F</kbd></td><td>Switch between full screen and a window</td></tr>
+  <tr><td><kbd>Esc</kbd></td><td>End the show</td></tr>
+</table>
+<p>Clickers work because they send the same keys: Page Up, Page Down, and usually <kbd>B</kbd> or <kbd>.</kbd> for the blank button.</p>
+
+<h2>Presenter view</h2>
+<p><strong>Presenter view</strong> opens a second window with the current slide, the next one, your notes, a timer, and every slide as a thumbnail. Keep it on your laptop and put the main window on the projector, then press Present there. Clicking any thumbnail sends the audience to that slide. The keys above work in this window too. Click the timer to reset it.</p>
+
+<h2>Editing keys</h2>
+<table>
+  <tr><th>Key</th><th>Does</th></tr>
+  <tr><td><kbd>Ctrl</kbd> <kbd>Z</kbd> / <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd></td><td>Undo, redo</td></tr>
+  <tr><td><kbd>Ctrl</kbd> <kbd>C</kbd> / <kbd>V</kbd> / <kbd>D</kbd></td><td>Copy, paste, duplicate the selected item. With nothing selected, <kbd>Ctrl</kbd> <kbd>D</kbd> duplicates the slide</td></tr>
+  <tr><td>Arrows</td><td>Nudge the selected item; with <kbd>Shift</kbd>, by 10. With nothing selected, change slide</td></tr>
+  <tr><td><kbd>Delete</kbd></td><td>Remove the selected item</td></tr>
+  <tr><td><kbd>Ctrl</kbd> <kbd>M</kbd></td><td>New slide</td></tr>
+  <tr><td><kbd>Ctrl</kbd> <kbd>Enter</kbd> or <kbd>F5</kbd></td><td>Present</td></tr>
+  <tr><td><kbd>Ctrl</kbd> <kbd>S</kbd></td><td>Save the deck to a file</td></tr>
+</table>
+
+<h2>Files</h2>
+<p>The open deck is saved automatically on this device. It holds one deck at a time, so use <strong>File, Save file</strong> to keep a deck and <strong>Open file</strong> to load one.</p>
+<table>
+  <tr><th>Type</th><th>Read</th><th>Write</th></tr>
+  <tr><td><code>.waypoint.json</code></td><td>Yes</td><td>Yes. The whole deck, images included</td></tr>
+  <tr><td>PNG, JPEG, WebP, GIF, SVG</td><td>Yes, as slide images. Large ones are shrunk to 1920 pixels</td><td></td></tr>
+  <tr><td>PDF</td><td></td><td>Yes, through <strong>Print or PDF</strong>: one slide per page</td></tr>
+</table>
+<p>In the desktop app, Open and Save use native dialogs, and <kbd>Ctrl</kbd> <kbd>S</kbd> writes back to the same file. In a browser, Save downloads the file.</p>
+
+<h2>Desktop app</h2>
+<p>The desktop app is the same editor in its own window. To run it from source you need <a href="https://nodejs.org">Node.js</a> 20 or newer:</p>
+<pre><code>git clone https://github.com/PyMite6941/waypoint
+cd waypoint
+npm install
+npm run desktop</code></pre>
+<p>The <a href="https://github.com/PyMite6941/waypoint#readme">README</a> covers development and building an installer.</p>
+</body>
+</html>

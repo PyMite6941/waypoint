@@ -1,0 +1,57 @@
+{
+  "name": "waypoint",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Slides you can present in order or steer: jump to any slide mid-talk, then step back to where you were.",
+  "author": "PyMite6941",
+  "license": "MIT",
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "desktop": "vite build && electron .",
+    "desktop:dev": "DEV_URL=http://localhost:5173 electron .",
+    "package": "vite build && npx electron-builder"
+  },
+  "build": {
+    "appId": "io.github.pymite6941.waypoint",
+    "productName": "Waypoint",
+    "files": [
+      "dist",
+      "desktop"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "publish": {
+      "provider": "github",
+      "releaseType": "release"
+    }
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "electron": "^45.2.3",
+    "vite": "^8.3.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PyMite6941/waypoint.git"
+  },
+  "homepage": "https://pymite6941.github.io/waypoint/"
+}
