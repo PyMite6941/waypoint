@@ -79,6 +79,9 @@ button:disabled { opacity: .45; cursor: default; }
 .stage .el.sel { outline: calc(2px * var(--k)) solid var(--select); }
 .stage .t[contenteditable] { cursor: text; user-select: text; }
 .handle { position: absolute; width: calc(12px * var(--k)); height: calc(12px * var(--k)); margin: calc(-6px * var(--k)); background: #fff; border: calc(2px * var(--k)) solid var(--select); border-radius: 50%; }
+.guide { position: absolute; background: #e0457b; pointer-events: none; }
+.guide.v { top: 0; bottom: 0; width: calc(1px * var(--k)); }
+.guide.h { left: 0; right: 0; height: calc(1px * var(--k)); }
 .nw { left: 0; top: 0; cursor: nwse-resize; } .se { right: 0; bottom: 0; cursor: nwse-resize; }
 .ne { right: 0; top: 0; cursor: nesw-resize; } .sw { left: 0; bottom: 0; cursor: nesw-resize; }
 #notes { height: 88px; flex: none; resize: none; padding: 10px 14px; border: 0; border-top: 1px solid var(--line); background: var(--panel); outline: 0; }

@@ -24,8 +24,8 @@ function TextBody({ el, editing, onDone }) {
 
 // One slide at its natural 1600 x 900 size. Everything that shows a slide uses this:
 // the stage, thumbnails, the show, presenter view and print.
-// `sel`, `live` (a rectangle overriding one element mid-drag) and `editing` are only used by the stage.
-export default function SlideView({ deck, slide, sel, live, editing, onEditDone }) {
+// `sel`, `live` (a rectangle overriding one element mid-drag), `guides` and `editing` are only used by the stage.
+export default function SlideView({ deck, slide, sel, live, guides, editing, onEditDone }) {
   return (
     <div className={`slide t-${deck.theme}`} style={slide.bg ? { background: slide.bg } : undefined}>
       {slide.els.map(el => {
@@ -53,6 +53,8 @@ export default function SlideView({ deck, slide, sel, live, editing, onEditDone 
         }
         return <div key={el.id} {...common} className={cls} style={{ ...box, background: el.fill || undefined }}>{handles}</div>;
       })}
+      {guides?.x != null && <i className="guide v" style={{ left: guides.x }} />}
+      {guides?.y != null && <i className="guide h" style={{ top: guides.y }} />}
     </div>
   );
 }

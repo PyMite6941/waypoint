@@ -9,7 +9,7 @@ Slides you can present in order, or steer. Arrow keys and clickers work as they 
 
 | How | What to do |
 | --- | --- |
-| In a browser, any device | Open https://pymite6941.github.io/waypoint/. Nothing to install |
+| In a browser, any device | Open https://pymite6941.github.io/waypoint/. Nothing to install. It keeps working offline after the first visit, and Chrome, Edge and phones offer "Install" to add it as an app |
 | Desktop app | Download the installer for your system from [Releases](https://github.com/PyMite6941/waypoint/releases/latest): `.exe` for Windows, `.dmg` for macOS, `.AppImage` for Linux |
 | From source | `npm install`, then `npm run desktop` |
 
@@ -17,7 +17,7 @@ The installers are not code-signed yet. Windows shows a SmartScreen prompt (More
 
 ## What it does
 
-- Free-form slides: text, boxes, circles and images you drag and resize, with four themes
+- Free-form slides: text, boxes, circles and images you drag and resize, with alignment guides and four themes
 - Present in order with arrows, Space, Page Up/Down or a clicker
 - Jump anywhere: type a slide number, open the grid with G, or click a linked item on the slide
 - Backspace returns to the slide you were on before the jump
@@ -59,6 +59,8 @@ One React app, two shells. The web build is what GitHub Pages serves. The deskto
 | `src/style.css` | Editor chrome, slide themes, show, presenter view, print |
 | `desktop/` | Electron window, `app://` file server, the `window.desktop` file bridge |
 | `public/docs/` | User guide, published alongside the app |
+| `public/sw.js`, `src/lib/offline.js` | Offline support and install for the web version |
+| `public/icon.svg`, `build/icon.png` | App icon (web and installers) |
 | `.github/workflows/pages.yml` | Builds and deploys to GitHub Pages on every push to `main` |
 | `.github/workflows/release.yml` | Builds desktop installers when a `v*` tag is pushed |
 
