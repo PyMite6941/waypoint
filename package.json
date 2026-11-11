@@ -1,6 +1,6 @@
 {
   "name": "waypoint",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Slides you can present in order or steer: jump to any slide mid-talk, then step back to where you were.",
   "author": "PyMite6941",
@@ -26,12 +26,22 @@
       "output": "release"
     },
     "linux": {
-      "target": "AppImage",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
       "category": "Office",
-      "icon": "build/icon.png"
+      "icon": "build/icon.png",
+      "artifactName": "${productName}-${arch}.${ext}"
     },
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "artifactName": "${productName}-${arch}.${ext}"
     },
     "win": {
       "target": "nsis"
@@ -39,6 +49,9 @@
     "publish": {
       "provider": "github",
       "releaseType": "release"
+    },
+    "nsis": {
+      "artifactName": "${productName}-Setup.${ext}"
     }
   },
   "dependencies": {

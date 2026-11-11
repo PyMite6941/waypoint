@@ -10,10 +10,30 @@ Slides you can present in order, or steer. Arrow keys and clickers work as they 
 | How | What to do |
 | --- | --- |
 | In a browser, any device | Open https://pymite6941.github.io/waypoint/. Nothing to install. It keeps working offline after the first visit, and Chrome, Edge and phones offer "Install" to add it as an app |
-| Desktop app | Download the installer for your system from [Releases](https://github.com/PyMite6941/waypoint/releases/latest): `.exe` for Windows, `.dmg` for macOS, `.AppImage` for Linux |
-| From source | `npm install`, then `npm run desktop` |
+| Desktop app | Run the install command for your system below, or download from [Releases](https://github.com/PyMite6941/waypoint/releases/latest) |
+| From source | `git clone https://github.com/PyMite6941/waypoint && cd waypoint && npm install && npm run desktop` (needs Node.js 20 or newer) |
 
-The installers are not code-signed yet. Windows shows a SmartScreen prompt (More info, Run anyway); on macOS, right-click the app and choose Open the first time. On Linux, make the AppImage executable (`chmod +x Waypoint-*.AppImage`) and run it.
+### Install the desktop app
+
+**Windows** (PowerShell):
+
+```powershell
+curl.exe -L -o "$env:TEMP\Waypoint-Setup.exe" https://github.com/PyMite6941/waypoint/releases/latest/download/Waypoint-Setup.exe; & "$env:TEMP\Waypoint-Setup.exe"
+```
+
+**Linux** (x86-64 and ARM64, including Raspberry Pi):
+
+```sh
+curl -L -o Waypoint.AppImage "https://github.com/PyMite6941/waypoint/releases/latest/download/Waypoint-$(uname -m | sed s/aarch64/arm64/).AppImage"
+chmod +x Waypoint.AppImage
+./Waypoint.AppImage
+```
+
+If the AppImage complains about FUSE, either install it (`sudo apt install libfuse2`, or `libfuse2t64` on Ubuntu 24.04 and newer) or run `./Waypoint.AppImage --appimage-extract-and-run`.
+
+**macOS:** download `Waypoint-arm64.dmg` from [Releases](https://github.com/PyMite6941/waypoint/releases/latest), open it and drag the app to Applications.
+
+The installers are not code-signed yet. If Windows shows a SmartScreen prompt, choose More info, then Run anyway; on macOS, right-click the app and choose Open the first time.
 
 ## What it does
 
@@ -38,7 +58,7 @@ npm run desktop:dev  # desktop app pointed at the dev server (run `npm run dev` 
 npm run package      # build an installer into release/ (downloads electron-builder on first use)
 ```
 
-To publish installers for every system, push a version tag (`git tag v0.2.0 && git push --tags`). `.github/workflows/release.yml` builds them and attaches them to a GitHub release. Icons and code signing are not set up yet; both go in the `build` section of `package.json`.
+To publish installers for every system, push a version tag (bump `version` in `package.json`, then `git tag v0.2.0 && git push --tags`). `.github/workflows/release.yml` builds them and attaches them to a GitHub release. Code signing is not set up yet; it goes in the `build` section of `package.json`.
 
 ## How it is put together
 
