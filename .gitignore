@@ -2,3 +2,11 @@ node_modules/
 dist/
 release/
 .DS_Store
+java/out/
+java/waypoint-presenter.jar
+
+# API keys (see .env.example). Never commit these.
+.env
+.env.*
+!.env.example
+*.env

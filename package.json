@@ -1,6 +1,6 @@
 {
   "name": "waypoint",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "private": true,
   "description": "Slides you can present in order or steer: jump to any slide mid-talk, then step back to where you were.",
   "author": "PyMite6941",
@@ -46,11 +46,88 @@
       "icon": "build/icon.png",
       "artifactName": "${productName}-${arch}.${ext}",
       "maintainer": "PyMite6941 <226280841+PyMite6941@users.noreply.github.com>",
-      "synopsis": "Slides you can present in order or steer"
+      "synopsis": "Slides you can present in order or steer",
+      "fileAssociations": [
+        {
+          "ext": [
+            "pptx",
+            "ppsx"
+          ],
+          "name": "PowerPoint Presentation",
+          "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        },
+        {
+          "ext": [
+            "ppt",
+            "pps"
+          ],
+          "name": "PowerPoint 97-2003 Presentation",
+          "mimeType": "application/vnd.ms-powerpoint"
+        },
+        {
+          "ext": "key",
+          "name": "Keynote Presentation",
+          "mimeType": "application/vnd.apple.keynote"
+        },
+        {
+          "ext": "odp",
+          "name": "OpenDocument Presentation",
+          "mimeType": "application/vnd.oasis.opendocument.presentation"
+        }
+      ]
     },
     "mac": {
-      "target": "dmg",
-      "artifactName": "${productName}-${arch}.${ext}"
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${arch}.${ext}",
+      "darkModeSupport": true,
+      "fileAssociations": [
+        {
+          "ext": "key",
+          "name": "Keynote Presentation",
+          "role": "Viewer",
+          "rank": "Alternate"
+        },
+        {
+          "ext": [
+            "pptx",
+            "ppsx"
+          ],
+          "name": "PowerPoint Presentation",
+          "role": "Viewer",
+          "rank": "Alternate"
+        },
+        {
+          "ext": [
+            "ppt",
+            "pps"
+          ],
+          "name": "PowerPoint 97-2003 Presentation",
+          "role": "Viewer",
+          "rank": "Alternate"
+        },
+        {
+          "ext": "odp",
+          "name": "OpenDocument Presentation",
+          "role": "Viewer",
+          "rank": "Alternate"
+        }
+      ]
     },
     "win": {
       "target": "nsis"
@@ -60,12 +137,37 @@
       "releaseType": "release"
     },
     "nsis": {
-      "artifactName": "${productName}-Setup.${ext}"
+      "artifactName": "${productName}-Setup.${ext}",
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Waypoint"
+    },
+    "dmg": {
+      "title": "Waypoint",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     }
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
     "@vitejs/plugin-react": "^6.3.0",
     "electron": "^45.2.3",
+    "html-to-image": "^1.11.13",
+    "jszip": "^3.10.2",
+    "pdfjs-dist": "^4.10.38",
+    "pptxgenjs": "^3.12.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "vite": "^8.3.7"
@@ -74,5 +176,11 @@
     "type": "git",
     "url": "https://github.com/PyMite6941/waypoint.git"
   },
-  "homepage": "https://pymite6941.github.io/waypoint/"
+  "homepage": "https://pymite6941.github.io/waypoint/",
+  "dependencies": {
+    "electron-updater": "^6.8.11"
+  },
+  "overrides": {
+    "image-size": "^2.1.0"
+  }
 }

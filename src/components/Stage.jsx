@@ -14,7 +14,8 @@ function snap(pos, size, lines) {
 
 // The editable slide: click to select, drag to move, drag a corner to resize,
 // double-click text to edit.
-export default function Stage({ deck, slide, sel, editing, onSelect, onEdit, onEditDone, onMove, onDropImage }) {
+// `preview` ({ step, n }) plays one build step in place: later builds hide, that step's effects run.
+export default function Stage({ deck, slide, sel, editing, preview, onSelect, onEdit, onEditDone, onMove, onDropImage }) {
   const [live, setLive] = useState(null);     // rectangle of the element being dragged
   const [guides, setGuides] = useState(null); // alignment lines shown while it snaps: { x, y }
 
@@ -71,9 +72,19 @@ export default function Stage({ deck, slide, sel, editing, onSelect, onEdit, onE
       onPointerDown={onPointerDown}
       onDoubleClick={e => { const id = e.target.closest('.el.text')?.dataset.id; if (id) onEdit(id); }}
       onDragOver={e => e.preventDefault()}
-      onDrop={e => { e.preventDefault(); for (const f of e.dataTransfer.files) if (f.type.startsWith('image/')) onDropImage(f); }}
+      onDrop={e => {
+        const images = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+        if (!images.length) return;   // anything else is a deck to import: the window handles it
+        e.preventDefault();
+        e.stopPropagation();
+        images.forEach(onDropImage);
+      }}
     >
-      <SlideView deck={deck} slide={slide} sel={sel} live={live} guides={guides} editing={editing} onEditDone={onEditDone} />
+      <SlideView
+        key={preview ? `p${preview.n}` : 'edit'} deck={deck} slide={slide} sel={preview ? null : sel} live={live} guides={guides}
+        editing={editing} onEditDone={onEditDone} badges={!preview}
+        build={preview ? preview.step : undefined} fx={preview ? preview.step : null}
+      />
     </Fit>
   );
 }

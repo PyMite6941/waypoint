@@ -1,46 +1,73 @@
 // Reading and writing files. On the desktop this goes through native dialogs
 // (window.desktop, see desktop/preload.cjs); in a browser it uploads and downloads.
-// To support another format, convert it to or from a deck here.
-import { cleanDeck } from './deck.js';
+// Other formats are converted in convert/import.js and convert/export.js.
+
+import { IMPORT_ACCEPT, importFiles } from './convert/import.js';
 
 const desktop = window.desktop;
 const FILTERS = [{ name: 'Waypoint deck', extensions: ['json'] }];
+// A function, not a constant: convert/import.js imports this file too, so IMPORT_ACCEPT
+// may not exist yet while this module first runs.
+const openFilters = () => [
+  { name: 'Presentations', extensions: IMPORT_ACCEPT.split(',').map(e => e.slice(1)) },
+  { name: 'All files', extensions: ['*'] },
+];
 let lastPath;   // desktop only: where the open deck was last saved
 
-function pickUpload(accept) {
+function pickUpload(accept, multiple = false) {
   return new Promise(resolve => {
-    const input = Object.assign(document.createElement('input'), { type: 'file', accept });
-    input.onchange = () => resolve(input.files[0] || null);
-    input.oncancel = () => resolve(null);
+    const input = Object.assign(document.createElement('input'), { type: 'file', accept, multiple });
+    input.onchange = () => resolve(multiple ? [...input.files] : input.files[0] || null);
+    input.oncancel = () => resolve(multiple ? [] : null);
     input.click();
   });
 }
 
 export const forgetPath = () => { lastPath = undefined; };
+export const fileName = (deck, ext) => `${deck.title.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'deck'}.${ext}`;
 
-// Resolves to a deck, or null if the user cancelled. Throws if the file is not a deck.
-export async function openDeck() {
-  const file = desktop ? await desktop.open(FILTERS) : await pickUpload('.json,application/json');
-  if (!file) return null;
-  const deck = cleanDeck(JSON.parse(desktop ? file.text : await file.text()));
-  lastPath = file.path;
-  return deck;
+// Ask for one or more files of any supported kind. Resolves to [{ name, bytes, path? }] (empty if cancelled).
+export async function pickFiles() {
+  if (desktop) {
+    const f = await desktop.open(openFilters());
+    return f ? [{ name: f.name, bytes: f.data, path: f.path }] : [];
+  }
+  const files = await pickUpload(IMPORT_ACCEPT, true);
+  return Promise.all(files.map(async f => ({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) })));
+}
+export const readDropped = list => Promise.all([...list].map(async f => ({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) })));
+
+// Open any supported file as a deck. Resolves to { deck, warnings, name } or null if cancelled.
+// A Waypoint file opened on the desktop is saved back to the same place by Save.
+export async function openDeck(files) {
+  files ??= await pickFiles();
+  if (!files.length) return null;
+  const result = await importFiles(files);
+  lastPath = files.length === 1 && /\.json$/i.test(files[0].name) ? files[0].path : undefined;
+  return { ...result, name: files.map(f => f.name).join(', ') };
+}
+
+// Save bytes or text under a name: a save dialog on the desktop, a download in a browser.
+export async function saveFile(name, data, type, filters) {
+  if (desktop) return desktop.save({ name, data, filters });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([data], { type })), download: name });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  return { name };
 }
 
 export async function saveDeck(deck) {
   // Only keep images that are still on a slide.
-  const used = new Set(deck.slides.flatMap(s => s.els.map(e => e.src)));
+  const used = new Set(deck.slides.flatMap(s => [s.bgImg, ...s.els.map(e => e.src)]));
   const assets = Object.fromEntries(Object.entries(deck.assets).filter(([id]) => used.has(id)));
   const text = JSON.stringify({ ...deck, assets });
-  const name = `${deck.title.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'deck'}.waypoint.json`;
+  const name = fileName(deck, 'waypoint.json');
   if (desktop) {
-    const saved = await desktop.save({ path: lastPath, name, text, filters: FILTERS });
+    const saved = await desktop.save({ path: lastPath, name, data: text, filters: FILTERS });
     if (saved) lastPath = saved.path;
-    return;
+    return saved;
   }
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([text], { type: 'application/json' })), download: name });
-  a.click();
-  URL.revokeObjectURL(a.href);
+  return saveFile(name, text, 'application/json');
 }
 
 export const pickImage = () => pickUpload('image/*');

@@ -15,17 +15,39 @@
   td, th { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { color: var(--dim); font-weight: 600; } td:first-child { white-space: nowrap; }
   kbd, code { font: .85em ui-monospace, Menlo, Consolas, monospace; padding: .1em .4em; border: 1px solid var(--line); border-radius: 4px; }
+  figure { margin: 1.2em 0 1.6em; } figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+  figure.narrow img { width: auto; max-width: 100%; margin: 0 auto; }
+  figcaption { color: var(--dim); font-size: 14px; margin-top: 6px; text-align: center; }
+  nav.toc { margin: 1.4em 0 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; font-size: 15px; }
+  nav.toc ol { margin: 0; padding-left: 1.3em; columns: 2; column-gap: 24px; } @media (max-width: 520px) { nav.toc ol { columns: 1; } }
+  h2[id], h3[id] { scroll-margin-top: 16px; }
   pre { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; } pre code { border: 0; padding: 0; }
 </style>
 </head>
 <body>
 <h1>Waypoint</h1>
-<p class="lead">Slides you can present in order, or steer. <a href="../">Open the editor</a></p>
+<p class="lead">Slides you can present in order, or steer. <a href="../">Open the editor</a> · <a href="https://github.com/PyMite6941/waypoint/releases/latest">Desktop app</a></p>
+<nav class="toc" aria-label="Contents"><ol>
+  <li><a href="#idea">The idea</a></li>
+  <li><a href="#building">Building a deck</a></li>
+  <li><a href="#animations">Animations</a></li>
+  <li><a href="#ai">Generating slides with AI</a></li>
+  <li><a href="#steering">Steering a talk</a></li>
+  <li><a href="#modes">Edit mode and present mode</a></li>
+  <li><a href="#presenting">Presenting</a></li>
+  <li><a href="#clicker">Using a clicker</a></li>
+  <li><a href="#controller">The controller</a></li>
+  <li><a href="#keys">Editing keys</a></li>
+  <li><a href="#files">Files, import and export</a></li>
+  <li><a href="#install">Install and pin to the taskbar or Dock</a></li>
+  <li><a href="#updates">Updates</a></li>
+  <li><a href="#desktop">Desktop app</a></li>
+</ol></nav>
 
-<h2>The idea</h2>
+<h2 id="idea">The idea</h2>
 <p>Most slide tools assume a talk runs from the first slide to the last. Waypoint keeps that: arrow keys, the space bar and a clicker all move through the deck in order. It also lets you leave the path at any moment. Jump to any slide by number, pick one from a grid, click a link on the slide, or choose one from your own screen, then press <kbd>Backspace</kbd> to return to where you were.</p>
 
-<h2>Building a deck</h2>
+<h2 id="building">Building a deck</h2>
 <ul>
   <li><strong>Text</strong>, <strong>Box</strong>, <strong>Circle</strong> and <strong>Image</strong> add things to the slide. You can also paste or drag an image in.</li>
   <li>Drag to move, drag a corner to resize. Items snap to the slide's centre and edges and to each other, with a guide line when they line up, and otherwise to a grid; hold <kbd>Alt</kbd> to place freely, <kbd>Shift</kbd> while resizing to keep proportions.</li>
@@ -33,9 +55,37 @@
   <li>The panel on the right changes the selected item, or the slide itself when nothing is selected.</li>
   <li>Drag slides in the left strip to reorder them. The theme menu restyles the whole deck.</li>
   <li>Speaker notes go in the box under the slide.</li>
+  <li><strong>+ Slide</strong> offers layouts: title and bullets, title, section, two columns, quote or blank.</li>
 </ul>
 
-<h2>Steering a talk</h2>
+<figure><img src="img/editor.webp" alt="The editor: slides on the left, the slide in the middle with a text box selected, and its settings on the right including a Rise build on click 1" width="1440" height="900" loading="lazy"><figcaption>Edit mode. The selected text box rises in on the first click; the orange 1 marks its place in the build order.</figcaption></figure>
+
+<h2 id="animations">Animations</h2>
+<p>With nothing selected, the right-hand panel sets the slide's <strong>transition</strong>: fade, push, cover, wipe, zoom, flip, cube or morph, with a duration. Morph glides items that appear on both slides (same text or picture) from their old place to their new one. <strong>Use on all slides</strong> applies it to the whole deck. <strong>Preview</strong> plays the slide with its transition and builds.</p>
+<p>With an item selected, <strong>Build</strong> picks how it arrives: appear, fade, rise, fly in, drop in, zoom, pop, wipe, focus or spin, with a duration and delay. <strong>Starts</strong> sets the order: items <em>on click 1</em> come in on the first press of Next, <em>on click 2</em> on the second, and so on; <em>with the slide</em> plays as the slide arrives. Next always plays the slide's builds before moving on, and Previous steps back through them. <strong>Preview build</strong> plays one.</p>
+<p>Transitions and builds work the same in the browser, the desktop app and the Java presenter, and they are kept when you export to PowerPoint.</p>
+
+<h2 id="ai">Generating slides with AI</h2>
+<p>In edit mode, <strong>Generate</strong> (<kbd>Ctrl</kbd> <kbd>G</kbd>) writes slides from a description of your talk. Choose how many, who it is for, whether to write speaker notes, and whether to add them after the current slide or replace the deck. You see every slide before it goes in, and one Undo takes them all out again.</p>
+<p>Waypoint uses the AI you bring. Pick it in <strong>File, AI settings</strong>:</p>
+<ul>
+  <li><strong>An API key</strong> from Anthropic, OpenAI, Google Gemini, OpenRouter, Groq, Mistral, DeepSeek or xAI, or the address of any other OpenAI-compatible service. <strong>Load models</strong> lists the models your key can use. Usage is billed by the provider.</li>
+  <li><strong>A model on your computer</strong> with Ollama or LM Studio. Nothing leaves your machine. In a browser, Ollama needs <code>OLLAMA_ORIGINS=*</code> set before it starts; the desktop app does not.</li>
+  <li><strong>A subscription, in the desktop app.</strong> A ChatGPT plan (Plus, Pro, Business, Enterprise) works through OpenAI&rsquo;s Codex CLI, and a Google account or Google AI Pro or Ultra through Google&rsquo;s Gemini CLI. Install the CLI (<code>npm install -g @openai/codex</code> or <code>npm install -g @google/gemini-cli</code>), run it once in a terminal to sign in, then pick it in AI settings. No API key is needed and use counts toward your plan. Waypoint runs it read-only in an empty folder and sends it only the prompt.</li>
+  <li><strong>Copy and paste</strong> with any chat app. Waypoint copies the prompt and opens ChatGPT, Claude, Gemini or Copilot; you send it and paste the reply back. This works with every chat subscription, and it is the only way to use <strong>Claude Pro or Max</strong>: Anthropic does not allow other apps to sign in with a Claude subscription.</li>
+</ul>
+
+<h3 id="keys">Where API keys are kept, and using several</h3>
+<p>Keys are saved in a <code>.env</code> file on your computer, never in the deck or the browser, and are sent only to the provider they belong to:</p>
+<ul>
+  <li><strong>Desktop app:</strong> the <code>.env</code> in Waypoint&rsquo;s settings folder. <em>Show file</em> in AI settings opens it.</li>
+  <li><strong>Web, Chrome or Edge:</strong> a <code>.env</code> file you choose or create once. Waypoint remembers it and asks for permission again on a later visit.</li>
+  <li><strong>Web, Firefox or Safari:</strong> these browsers cannot save a file in place, so open your <code>.env</code> each visit; after changing keys, download the updated file.</li>
+</ul>
+<p>The file uses the usual names, so other tools can share it: <code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code>, <code>GEMINI_API_KEY</code> and so on. Add more than one key for a provider by putting a label after the name, such as <code>ANTHROPIC_API_KEY_WORK</code>, or use <em>Add key</em> in AI settings.</p>
+<p>Waypoint counts the tokens each key uses this month, on your device. Choose <strong>Automatic</strong> to use the least-used key and move on to the next one when a key is rate limited, out of credit, refused, or over a monthly limit you set, or pick one key to always use. Your provider&rsquo;s dashboard has the exact figures and costs.</p>
+
+<h2 id="steering">Steering a talk</h2>
 <p>There are two ways to set up jumps ahead of time, both in the right-hand panel:</p>
 <ul>
   <li><strong>Links to</strong> (with an item selected): clicking that item during the show jumps to the chosen slide. Use this for menus the audience can see.</li>
@@ -43,8 +93,13 @@
 </ul>
 <p>Links and choices follow the slide, not its number, so reordering never breaks them.</p>
 
-<h2>Presenting</h2>
-<p><strong>Present</strong> starts a full-screen show from the current slide. Move the mouse to bring up the control bar.</p>
+<h2 id="modes">Edit mode and present mode</h2>
+<p>The pencil at the right end of the top bar switches edit mode on and off (<kbd>Ctrl</kbd> <kbd>E</kbd>). With it on (orange) you get the full editor and its shortcuts. With it off you are in present mode: every slide laid out on a grid like Keynote's light table, 3 or 4 to a row (pick with Columns). Click a slide to ring it in orange, use the arrow keys to move the ring, and press <kbd>Enter</kbd> or Present to start from it. Double-click a slide to edit it.</p>
+
+<figure><img src="img/light-table.webp" alt="Present mode: four slides on a grid with the second ringed in orange" width="1440" height="900" loading="lazy"><figcaption>Present mode, the light table. Click a slide, then Present.</figcaption></figure>
+
+<h2 id="presenting">Presenting</h2>
+<p><strong>Present</strong> starts the show from the current slide. If a second display is connected, the slides fill that display and this window becomes your controller (Chrome and Edge ask once for permission to use your other screens; press Present again after allowing it). With one display the slides open in a window of their own. <strong>Play here</strong> plays a full-screen show in this window instead, with no controller. Move the mouse over the slides to bring up the control bar.</p>
 <table>
   <tr><th>Key</th><th>Does</th></tr>
   <tr><td><kbd>→</kbd> <kbd>↓</kbd> <kbd>Space</kbd> <kbd>Enter</kbd> <kbd>PgDn</kbd>, click</td><td>Next slide in order</td></tr>
@@ -57,12 +112,25 @@
   <tr><td><kbd>F</kbd></td><td>Switch between full screen and a window</td></tr>
   <tr><td><kbd>Esc</kbd></td><td>End the show</td></tr>
 </table>
-<p>Clickers work because they send the same keys: Page Up, Page Down, and usually <kbd>B</kbd> or <kbd>.</kbd> for the blank button.</p>
+<h3 id="clicker">Using a clicker</h3>
+<p>Plug in the clicker's USB receiver or pair it over Bluetooth; there is nothing to install. Clickers type like a keyboard, sending Page Down and Page Up (some send arrows or media keys), and usually <kbd>B</kbd> or <kbd>.</kbd> for the blank button. Their start-show button sends <kbd>F5</kbd> or <kbd>Esc</kbd>: <kbd>F5</kbd> is caught so the page never reloads, and <kbd>Esc</kbd> ends the show as in PowerPoint.</p>
+<ul>
+  <li><strong>The Clicker menu</strong> in the toolbar lists the Bluetooth devices paired with your computer, clickers first, with a dot for each one that is connected. Pick yours and the menu button shows whether it is connected; the presenter view warns you if it drops out during a talk. If none is paired, the menu says so: turn the clicker on and pair it (<em>Bluetooth settings…</em> opens your system&rsquo;s settings in the desktop app). In Chrome and Edge, <em>Find a clicker…</em> lets you allow it; other browsers cannot list devices, but the clicker still works. Any keyboard or clicker always moves the slides, whichever one is picked.</li>
+  <li><strong>Teach clicker keys</strong> (also File, Clicker setup) lets you press each button and see what it does. A button Waypoint does not know can be set to Next, Previous or Black screen there.</li>
+  <li>The clicker works in both windows, the slides and the controller, so it does not matter which one you last clicked.</li>
+  <li>Clicking a Waypoint window just to bring it to the front never changes the slide.</li>
+  <li><strong>Desktop app:</strong> while the slides are up, Page Up and Page Down reach the show even if you click into another app (say, to demo something). Turn this off in Clicker setup if that app needs those keys.</li>
+  <li><strong>In a browser</strong> the keys only reach the window in front. After using another app, click a Waypoint window before pressing the clicker.</li>
+</ul>
 
-<h2>Presenter view</h2>
-<p><strong>Presenter view</strong> opens a second window with the current slide, the next one, your notes, a timer, and every slide as a thumbnail. Keep it on your laptop and put the main window on the projector, then press Present there. Clicking any thumbnail sends the audience to that slide. The keys above work in this window too. Click the timer to reset it.</p>
+<figure class="narrow"><img src="img/clicker.webp" alt="The Clicker setup dialog, waiting for a button press" width="560" height="415" loading="lazy"><figcaption>File, Clicker setup: press each button to see what it does.</figcaption></figure>
 
-<h2>Editing keys</h2>
+<h2 id="controller">The controller</h2>
+<p>While you present, your own screen shows the current slide, the next one, your notes and a timer, with every slide in the deck laid out on the right. Click any slide to send the audience there, even one the next arrow would never reach. The current slide is marked <em>Now</em>, the next one <em>Next</em>, and this slide's next choices are outlined. Columns switches between 3 and 4 slides per row; the slide on screen is ringed in orange. The keys above work here too; <kbd>Esc</kbd> or End show stops the show. Click the timer to reset it.</p>
+
+<figure><img src="img/controller.webp" alt="The controller: timer, current and next slide, notes, and a grid of every slide with Now and Next marked" width="1440" height="900" loading="lazy"><figcaption>The controller on your screen while the slides are on the other display.</figcaption></figure>
+
+<h2 id="keys">Editing keys</h2>
 <table>
   <tr><th>Key</th><th>Does</th></tr>
   <tr><td><kbd>Ctrl</kbd> <kbd>Z</kbd> / <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd></td><td>Undo, redo</td></tr>
@@ -70,22 +138,70 @@
   <tr><td>Arrows</td><td>Nudge the selected item; with <kbd>Shift</kbd>, by 10. With nothing selected, change slide</td></tr>
   <tr><td><kbd>Delete</kbd></td><td>Remove the selected item</td></tr>
   <tr><td><kbd>Ctrl</kbd> <kbd>M</kbd></td><td>New slide</td></tr>
+  <tr><td><kbd>Ctrl</kbd> <kbd>B</kbd></td><td>Bold on or off for the selected text</td></tr>
+  <tr><td><kbd>Ctrl</kbd> <kbd>]</kbd> / <kbd>Ctrl</kbd> <kbd>[</kbd></td><td>Bring to front, send to back</td></tr>
+  <tr><td><kbd>Ctrl</kbd> <kbd>G</kbd></td><td>Generate slides with AI</td></tr>
+  <tr><td><kbd>?</kbd></td><td>Show every shortcut</td></tr>
   <tr><td><kbd>Ctrl</kbd> <kbd>Enter</kbd> or <kbd>F5</kbd></td><td>Present</td></tr>
   <tr><td><kbd>Ctrl</kbd> <kbd>S</kbd></td><td>Save the deck to a file</td></tr>
 </table>
 
-<h2>Files</h2>
-<p>The open deck is saved automatically on this device. It holds one deck at a time, so use <strong>File, Save file</strong> to keep a deck and <strong>Open file</strong> to load one.</p>
-<table>
-  <tr><th>Type</th><th>Read</th><th>Write</th></tr>
-  <tr><td><code>.waypoint.json</code></td><td>Yes</td><td>Yes. The whole deck, images included</td></tr>
-  <tr><td>PNG, JPEG, WebP, GIF, SVG</td><td>Yes, as slide images. Large ones are shrunk to 1920 pixels</td><td></td></tr>
-  <tr><td>PDF</td><td></td><td>Yes, through <strong>Print or PDF</strong>: one slide per page</td></tr>
-</table>
-<p>In the desktop app, Open and Save use native dialogs, and <kbd>Ctrl</kbd> <kbd>S</kbd> writes back to the same file. In a browser, Save downloads the file.</p>
+<h2 id="files">Files</h2>
+<p>The open deck is saved automatically on this device. Use <strong>File, Save file</strong> (<kbd>Ctrl</kbd> <kbd>S</kbd>) to keep a deck as a <code>.waypoint.json</code> file. In the desktop app, Open and Save use native dialogs and <kbd>Ctrl</kbd> <kbd>S</kbd> writes back to the same file; in a browser, Save downloads the file.</p>
+<h3 id="import">Opening other formats</h3>
+<p><strong>File, Open or import</strong> (<kbd>Ctrl</kbd> <kbd>O</kbd>), or drop a file on the window. Choose whether it replaces the deck or is added after the current slide; either way one Undo takes it back. With Waypoint installed (see <a href="#install">below</a>) you can also double-click a presentation, or use <em>Open with</em>.</p>
+<figure><img src="img/import.webp" alt="The Open or import dialog listing PowerPoint, Keynote, OpenDocument, PowerPoint 97-2003, PDF, Waypoint, outline and picture files" width="900" height="452" loading="lazy"></figure>
 
-<h2>Desktop app</h2>
-<p>The desktop app is the same editor in its own window. To run it from source you need <a href="https://nodejs.org">Node.js</a> 20 or newer:</p>
+<table>
+  <tr><th>Type</th><th>What comes across</th></tr>
+  <tr><td>PowerPoint <code>.pptx</code></td><td>Layout, colours, theme fonts, text formatting and bullets, shapes, pictures (cropped), tables, links, speaker notes, transitions and build animations</td></tr>
+  <tr><td>Keynote <code>.key</code></td><td>Layout, colours, fonts, text formatting and bullets, shapes, pictures (cropped), speaker notes, transitions and builds. Tables and charts become a labelled box. Needs Keynote 6 or later (2013 on); open and save older files in Keynote first</td></tr>
+  <tr><td>OpenDocument <code>.odp</code></td><td>From LibreOffice or OpenOffice. Layout, colours, gradients, fonts, text formatting and bullets, every LibreOffice shape (drawn from its own outline), pictures (cropped), links, speaker notes, transitions and builds</td></tr>
+  <tr><td>PowerPoint 97-2003 <code>.ppt</code> <code>.pps</code></td><td>Layout, colours, fonts, text formatting and bullets, shapes, JPEG, PNG and bitmap pictures, links, speaker notes, transitions and builds. Old WMF/EMF clip art shows as a box with a note</td></tr>
+  <tr><td>Google Slides</td><td>Paste the share link (shared as <em>Anyone with the link</em>), or use File, Download, PowerPoint in Google Slides and open that file</td></tr>
+  <tr><td>PDF</td><td>One picture per page</td></tr>
+  <tr><td>Markdown, text</td><td>An outline: <code>#</code> headings become slides, lists become bullets</td></tr>
+  <tr><td>Pictures</td><td>One slide per picture</td></tr>
+</table>
+<h3 id="links">Opening a presentation from a link</h3>
+<p>Paste a link in <strong>Link to a presentation</strong> in the Open dialog. Waypoint downloads the file, works out what it is from its contents, and opens it ready to present. It understands:</p>
+<ul>
+  <li><strong>Google Slides</strong> share links (<code>docs.google.com/presentation/d/…</code>). <em>Publish to the web</em> links cannot be downloaded; use the Share link.</li>
+  <li><strong>PowerPoint, Keynote, OpenDocument or PDF files</strong> shared from <strong>OneDrive, SharePoint, Google Drive or Dropbox</strong>, and direct links to a <code>.pptx</code>, <code>.key</code>, <code>.odp</code> or <code>.pdf</code>.</li>
+</ul>
+<p>The file must be shared so <em>anyone with the link</em> can view it; links that need a sign-in (for example, SharePoint links limited to your organisation) cannot be downloaded by Waypoint, so download the file yourself and open it. The desktop app downloads every link directly. In a browser, some sites refuse to hand the file to another web page; Waypoint then opens the download in a new tab for you to drop in. iCloud links cannot be downloaded at all.</p>
+<p>Waypoint remembers the link. If you keep editing in Google Slides or PowerPoint, <strong>File, Update from link</strong> fetches the latest version before your talk; it replaces the slides, and one Undo brings back the previous version (including any jumps you added in Waypoint).</p>
+<p>After an import, the top bar lists anything that did not come across exactly, such as fonts this computer lacks (a close match is used) or a 4:3 deck (its slides sit in the middle of the 16:9 frame). Password-protected files cannot be opened: remove the password in the app that made them first.</p>
+<h3 id="export">Exporting</h3>
+<p><strong>File, Export</strong> offers PowerPoint, Google Slides (a <code>.pptx</code> ready to upload), PDF, PNG pictures and a Waypoint file. The one you pick is remembered, and <strong>Export as</strong> (<kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd>) repeats it in one step. PowerPoint export keeps positions, colours, fonts, notes, links, transitions and builds; gradients become their first colour.</p>
+<figure class="narrow"><img src="img/export.webp" alt="The Export dialog with PowerPoint, Google Slides, PDF, Pictures and Waypoint options" width="560" height="497" loading="lazy"></figure>
+
+
+<h2 id="install">Install and pin to the taskbar or Dock</h2>
+<p>Waypoint can be an app with its own window and icon, so it opens from the taskbar, the Dock or the Start menu like any other. <strong>File, Install as an app</strong> walks you through it for the computer you are on. There are two ways.</p>
+<h3>From the browser (nothing to download)</h3>
+<ul>
+  <li><strong>Chrome or Edge</strong> on Windows, macOS, Linux or ChromeOS: click the install icon at the right of the address bar, or <strong>Install as an app</strong> in Waypoint's File menu. Installed, it works offline, updates itself, and opens <code>.pptx</code>, <code>.key</code>, <code>.odp</code> and <code>.ppt</code> files you double-click (the browser asks once whether to allow this).</li>
+  <li><strong>Safari on a Mac</strong> (macOS Sonoma or later): <strong>File, Add to Dock</strong>.</li>
+  <li><strong>iPhone and iPad:</strong> the Share button, then <strong>Add to Home Screen</strong>.</li>
+</ul>
+<h3>The desktop app</h3>
+<p>Download the installer for your system from the <a href="https://github.com/PyMite6941/waypoint/releases/latest">latest release</a>: <code>Waypoint-Setup.exe</code> for Windows, a <code>.dmg</code> for macOS (Apple silicon or Intel), and a <code>.deb</code> or AppImage for Linux. The Windows installer adds Waypoint to the Start menu and the desktop; on a Mac, drag it to Applications. The desktop app adds native open and save dialogs, keeps the clicker working while another app is in front, and opens <code>.pptx</code>, <code>.key</code>, <code>.odp</code> and <code>.ppt</code> files. On a Mac and on Linux it appears under <em>Open With</em> for them; on Windows, right-click a file, choose <strong>Open with, Choose another app</strong> and pick Waypoint (or browse to it) (it never takes over files PowerPoint opens unless you tick <em>Always</em>).</p>
+<h3>Pinning it</h3>
+<table>
+  <tr><th>System</th><th>How</th></tr>
+  <tr><td>Windows</td><td>Open Waypoint, right-click its icon on the taskbar and choose <strong>Pin to taskbar</strong>. Or find it in the Start menu, right-click it, and choose <strong>Pin to taskbar</strong> or <strong>Pin to Start</strong>. In the desktop app, right-clicking the pinned icon also offers <em>New window</em></td></tr>
+  <tr><td>macOS</td><td>Open Waypoint, right-click (or Control-click) its icon in the Dock and choose <strong>Options, Keep in Dock</strong>. Or drag Waypoint from Applications or Launchpad onto the Dock. Safari's <em>Add to Dock</em> pins it straight away</td></tr>
+  <tr><td>ChromeOS</td><td>Right-click its icon in the shelf and choose <strong>Pin</strong></td></tr>
+  <tr><td>Linux</td><td>Right-click its icon in your dock or panel and choose to keep or pin it (the wording depends on your desktop)</td></tr>
+</table>
+<p>Windows and macOS leave pinning to you, so neither the browser nor the installer can do that last step. Once pinned, you can drop a presentation on the icon to open it.</p>
+
+<h2 id="updates">Updates</h2>
+<p>The web version updates itself: when a new version goes live, a bar offers to reload. The desktop app checks GitHub for a new release when it starts and every few hours, downloads it in the background and installs it when you restart. <strong>File, About and updates</strong> shows your version and checks now.</p>
+
+<h2 id="desktop">Desktop app</h2>
+<p>The desktop app is the same editor in its own window. Installers are on the <a href="https://github.com/PyMite6941/waypoint/releases/latest">releases page</a> (see <a href="#install">Install</a>). To run it from source you need <a href="https://nodejs.org">Node.js</a> 20 or newer:</p>
 <pre><code>git clone https://github.com/PyMite6941/waypoint
 cd waypoint
 npm install
