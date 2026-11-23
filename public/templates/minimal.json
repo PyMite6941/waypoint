@@ -1,0 +1,237 @@
+{
+ "v": 1,
+ "title": "Minimal talk",
+ "theme": "paper",
+ "assets": {},
+ "slides": [
+  {
+   "id": "e7wq9hf",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "ttg50ex",
+     "type": "text",
+     "x": 160,
+     "y": 300,
+     "w": 1280,
+     "h": 300,
+     "text": "Talk title",
+     "size": 110,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "anim": {
+      "dur": 0.8,
+      "fx": "custom:focus",
+      "step": 0
+     }
+    },
+    {
+     "id": "9tezyoz",
+     "type": "text",
+     "x": 160,
+     "y": 620,
+     "w": 1280,
+     "h": 70,
+     "text": "Your name",
+     "size": 38,
+     "align": "center",
+     "color": "#78716c"
+    }
+   ]
+  },
+  {
+   "id": "58ktp6e",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "hu0472w",
+     "type": "text",
+     "x": 160,
+     "y": 300,
+     "w": 1280,
+     "h": 300,
+     "text": "One thought.",
+     "size": 110,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "anim": {
+      "dur": 0.8,
+      "fx": "custom:focus",
+      "step": 0
+     }
+    }
+   ]
+  },
+  {
+   "id": "3px6f85",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "f3sjikc",
+     "type": "text",
+     "x": 160,
+     "y": 300,
+     "w": 1280,
+     "h": 300,
+     "text": "Then the next.",
+     "size": 110,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "anim": {
+      "dur": 0.8,
+      "fx": "custom:focus",
+      "step": 0
+     }
+    }
+   ]
+  },
+  {
+   "id": "ro68v3k",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "lu6dcyx",
+     "type": "text",
+     "x": 160,
+     "y": 140,
+     "w": 1280,
+     "h": 110,
+     "text": "Three things to remember",
+     "size": 64,
+     "bold": true,
+     "align": "center"
+    },
+    {
+     "id": "rd5p349",
+     "type": "text",
+     "x": 160,
+     "y": 320,
+     "w": 1280,
+     "h": 110,
+     "text": "First",
+     "size": 56,
+     "align": "center",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 1
+     }
+    },
+    {
+     "id": "l4qskai",
+     "type": "text",
+     "x": 160,
+     "y": 450,
+     "w": 1280,
+     "h": 110,
+     "text": "Second",
+     "size": 56,
+     "align": "center",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 2
+     }
+    },
+    {
+     "id": "yn00wip",
+     "type": "text",
+     "x": 160,
+     "y": 580,
+     "w": 1280,
+     "h": 110,
+     "text": "Third",
+     "size": 56,
+     "align": "center",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "7kbi2yo",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "tfakz7e",
+     "type": "text",
+     "x": 160,
+     "y": 300,
+     "w": 1280,
+     "h": 300,
+     "text": "Thank you",
+     "size": 110,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "anim": {
+      "dur": 0.8,
+      "fx": "custom:focus",
+      "step": 0
+     }
+    }
+   ]
+  }
+ ],
+ "anims": {
+  "rise": {
+   "name": "Rise",
+   "kind": "in",
+   "dur": 0.7,
+   "ease": "ease-out",
+   "frames": [
+    {
+     "at": 0,
+     "y": 60,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "focus": {
+   "name": "Focus",
+   "kind": "in",
+   "dur": 0.8,
+   "ease": "ease-out",
+   "frames": [
+    {
+     "at": 0,
+     "scale": 1.08,
+     "opacity": 0,
+     "blur": 24
+    },
+    {
+     "at": 100
+    }
+   ]
+  }
+ },
+ "template": {
+  "name": "Minimal talk",
+  "description": "Big type, one thought per slide, words that come into focus.",
+  "author": "Waypoint",
+  "license": "CC0",
+  "tags": [
+   "talk",
+   "minimal"
+  ]
+ }
+}

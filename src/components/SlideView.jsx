@@ -1,5 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GEOMS, H, W } from '../lib/deck.js';
+import { animOf, easeCss, isCustom, keyframeName, keyframesCss } from '../lib/anims.js';
 import { fontStack } from '../lib/fonts.js';
 
 const CORNERS = ['nw', 'ne', 'sw', 'se'];
@@ -69,17 +70,23 @@ function Line({ el }) {
 // Builds: with `build` set, objects whose build step is later stay hidden, and objects of
 // step `fx` play their entrance effect (step 0 after `fxDelay` seconds, the slide's transition).
 // `sel`, `live` (a rectangle overriding one element mid-drag), `guides`, `badges` and `editing` are only used by the stage.
-export default function SlideView({ deck, slide, sel, live, guides, editing, onEditDone, build, fx = null, fxDelay = 0, badges }) {
+function SlideView({ deck, slide, sel, live, guides, editing, onEditDone, build, fx = null, fxDelay = 0, badges }) {
   const bg = slide.bgImg && deck.assets[slide.bgImg]
     ? { background: `${slide.bg || 'var(--bg)'} url("${deck.assets[slide.bgImg]}") center / cover no-repeat` }
     : slide.bg ? { background: slide.bg } : undefined;
+  // Custom animations this slide plays: their keyframes go in with it (only when it can play).
+  const custom = build !== undefined && deck.anims && slide.els.some(e => isCustom(e.anim?.fx))
+    ? Object.fromEntries(slide.els.filter(e => animOf(deck, e.anim?.fx)).map(e => [e.anim.fx.slice(7), animOf(deck, e.anim.fx)]))
+    : null;
   return (
     <div className={`slide t-${deck.theme}`}>
+      {custom && <style>{keyframesCss(custom)}</style>}
       <div className="bgl" style={bg} />
       {slide.els.map(el => {
         const r = live?.id === el.id ? live : el;
         const step = el.anim?.fx ? el.anim.step || 0 : -1;
-        const hidden = build !== undefined && step > build;
+        const own = isCustom(el.anim?.fx) ? animOf(deck, el.anim.fx) : null;   // a custom animation (null: built in, or missing)
+        const hidden = build !== undefined && step > build && own?.kind !== 'emphasis';
         const playing = !hidden && fx !== null && build !== undefined && step === fx;
         const style = { left: r.x, top: r.y, width: r.w, height: r.h };
         if (el.rot) style.transform = `rotate(${el.rot}deg)`;
@@ -88,14 +95,15 @@ export default function SlideView({ deck, slide, sel, live, guides, editing, onE
         if (el.radius != null) style.borderRadius = el.radius;
         if (el.geom && el.type !== 'line') style.clipPath = clipOf(el.geom);
         if (playing) {
-          style.animationDuration = `${el.anim.fx === 'appear' ? 0.01 : el.anim.dur || 0.5}s`;
+          style.animationDuration = `${el.anim.fx === 'appear' ? 0.01 : el.anim.dur || own?.dur || 0.5}s`;
+          if (own) { style['--fx'] = keyframeName(el.anim.fx.slice(7)); style.animationTimingFunction = easeCss(own); }
           style.animationDelay = `${(step === 0 ? fxDelay : 0) + (el.anim.delay || 0)}s`;
         }
         const common = {
           'data-id': el.id,
           'data-link': el.link && deck.slides.some(s => s.id === el.link) ? el.link : undefined,
         };
-        const cls = `el ${el.type}${sel === el.id ? ' sel' : ''}${hidden ? ' pending' : ''}${playing ? ` fx fx-${el.anim.fx}` : ''}`;
+        const cls = `el ${el.type}${sel === el.id ? ' sel' : ''}${hidden ? ' pending' : ''}${playing ? ` fx fx-${isCustom(el.anim.fx) ? (own ? 'custom' : 'fade') : el.anim.fx}` : ''}`;
         const handles = sel === el.id && editing !== el.id && CORNERS.map(c => <i key={c} className={`handle ${c}`} data-corner={c} />);
 
         if (el.type === 'text') {
@@ -143,14 +151,28 @@ export default function SlideView({ deck, slide, sel, live, guides, editing, onE
   );
 }
 
+// A slide is redrawn only when something it shows changed: its own content, the theme, the
+// pictures, or which slides exist (for link badges). Edits keep unchanged slides as the same
+// objects (see state.js), so editing one slide leaves every other thumbnail alone.
+const idsKey = new WeakMap();
+const idsOf = slides => { let k = idsKey.get(slides); if (k === undefined) { k = slides.map(s => s.id).join(' '); idsKey.set(slides, k); } return k; };
+const sameLook = (a, b) => a === b || (a.theme === b.theme && a.assets === b.assets && a.anims === b.anims && (a.slides === b.slides || idsOf(a.slides) === idsOf(b.slides)));
+export function sameProps(p, n) {
+  for (const k of new Set([...Object.keys(p), ...Object.keys(n)])) {
+    if (k === 'deck' ? !sameLook(p.deck, n.deck) : p[k] !== n[k]) return false;
+  }
+  return true;
+}
+export default memo(SlideView, sameProps);
+
 // A slide at a fixed small width.
-export function Thumb({ deck, slide, width }) {
+export const Thumb = memo(function Thumb({ deck, slide, width }) {
   return (
     <div className="thumb" style={{ width, height: width * H / W }}>
       <div className="scaler" style={{ transform: `scale(${width / W})` }}><SlideView deck={deck} slide={slide} /></div>
     </div>
   );
-}
+}, sameProps);
 
 // Scales its child slide to fill whatever space the box has. --k lets CSS draw
 // selection handles at a constant size on screen.

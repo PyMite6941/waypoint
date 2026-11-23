@@ -178,7 +178,8 @@
   },
   "homepage": "https://pymite6941.github.io/waypoint/",
   "dependencies": {
-    "electron-updater": "^6.8.11"
+    "electron-updater": "^6.8.11",
+    "immer": "11.2.9"
   },
   "overrides": {
     "image-size": "^2.1.0"

@@ -31,6 +31,7 @@
   <li><a href="#idea">The idea</a></li>
   <li><a href="#building">Building a deck</a></li>
   <li><a href="#animations">Animations</a></li>
+  <li><a href="#templates">Templates</a></li>
   <li><a href="#ai">Generating slides with AI</a></li>
   <li><a href="#steering">Steering a talk</a></li>
   <li><a href="#modes">Edit mode and present mode</a></li>
@@ -41,6 +42,7 @@
   <li><a href="#files">Files, import and export</a></li>
   <li><a href="#install">Install and pin to the taskbar or Dock</a></li>
   <li><a href="#updates">Updates</a></li>
+  <li><a href="#uninstall">Uninstalling</a></li>
   <li><a href="#desktop">Desktop app</a></li>
 </ol></nav>
 
@@ -64,6 +66,27 @@
 <p>With nothing selected, the right-hand panel sets the slide's <strong>transition</strong>: fade, push, cover, wipe, zoom, flip, cube or morph, with a duration. Morph glides items that appear on both slides (same text or picture) from their old place to their new one. <strong>Use on all slides</strong> applies it to the whole deck. <strong>Preview</strong> plays the slide with its transition and builds.</p>
 <p>With an item selected, <strong>Build</strong> picks how it arrives: appear, fade, rise, fly in, drop in, zoom, pop, wipe, focus or spin, with a duration and delay. <strong>Starts</strong> sets the order: items <em>on click 1</em> come in on the first press of Next, <em>on click 2</em> on the second, and so on; <em>with the slide</em> plays as the slide arrives. Next always plays the slide's builds before moving on, and Previous steps back through them. <strong>Preview build</strong> plays one.</p>
 <p>Transitions and builds work the same in the browser, the desktop app and the Java presenter, and they are kept when you export to PowerPoint.</p>
+<h3>Custom animations</h3>
+<p>Choose <strong>New custom animation…</strong> in the Build list to make your own. Give it a name, choose <em>Entrance</em> (the item arrives) or <em>Emphasis</em> (the item is already showing and moves on its click: a pulse, a shake), a duration and an easing, then set its keyframes: at each point in time, how far the item is moved, scaled, turned, faded and blurred. Start from one of the presets or one of your own. The preview replays as you change it.</p>
+<p><strong>Save and use</strong> adds it to the deck and to the selected item. Custom animations travel with the deck, so anyone you send the file to sees them. Tick <strong>Save to My animations</strong> to keep it on this computer for other decks too; it then appears in every Build list. My animations can be exported to a file and imported on another computer.</p>
+<p>Custom animations play in the browser and the desktop app. In the Java presenter and in PowerPoint exports, custom entrances play as a fade and emphasis animations are left out.</p>
+
+<h2 id="templates">Templates</h2>
+<p><strong>File, New from template…</strong> opens the template gallery. <strong>New deck</strong> starts a deck from a template (Undo brings your old one back); <strong>Add slides</strong> puts its slides after the current one. Links between a template's slides keep working.</p>
+<ul>
+  <li><strong>Gallery</strong>: Waypoint's own templates. The list is read from the website, so new templates appear without updating the app; offline you get the ones that came with it.</li>
+  <li><strong>My templates</strong>: <strong>File, Save as template…</strong> saves the open deck, with its pictures, theme and custom animations, on this computer. Export one to share it.</li>
+  <li><strong>From a link</strong>: paste a Google Slides, PowerPoint, OneDrive, Dropbox or Waypoint link. Many template sites offer a Google Slides or PowerPoint version; for Google Slides the template must be shared with anyone who has the link.</li>
+  <li><strong>More galleries</strong>: add a gallery anyone publishes (a team, a school, a designer) by its link.</li>
+</ul>
+<h3>Publishing a gallery</h3>
+<p>A gallery is a JSON file on any https site, such as GitHub Pages:</p>
+<pre><code>{ "waypoint": "templates", "v": 1, "name": "Our templates",
+  "templates": [
+    { "id": "kickoff", "name": "Project kickoff", "description": "…", "author": "…", "license": "CC BY 4.0",
+      "file": "kickoff.waypoint.json" },
+    { "id": "report", "name": "Quarterly report", "file": "https://docs.google.com/presentation/d/…" } ] }</code></pre>
+<p><code>file</code> is a Waypoint deck next to the gallery file (exported from My templates), or a link to any presentation Waypoint can open. The site must allow other sites to read the files (GitHub Pages does). Templates from a gallery are checked like any file you open: only text, pictures and layout come through, never scripts.</p>
 
 <h2 id="ai">Generating slides with AI</h2>
 <p>In edit mode, <strong>Generate</strong> (<kbd>Ctrl</kbd> <kbd>G</kbd>) writes slides from a description of your talk. Choose how many, who it is for, whether to write speaker notes, and whether to add them after the current slide or replace the deck. You see every slide before it goes in, and one Undo takes them all out again.</p>
@@ -196,6 +219,11 @@
   <tr><td>Linux</td><td>Right-click its icon in your dock or panel and choose to keep or pin it (the wording depends on your desktop)</td></tr>
 </table>
 <p>Windows and macOS leave pinning to you, so neither the browser nor the installer can do that last step. Once pinned, you can drop a presentation on the icon to open it.</p>
+
+<h2 id="uninstall">Uninstalling</h2>
+<p>In the desktop app choose <strong>File, Uninstall Waypoint…</strong>, tick the confirmation and click <strong>Uninstall</strong>. Waypoint quits, then removes itself: on Windows through its uninstaller (with the Start menu and desktop shortcuts), on a Mac by moving itself to the Trash, on Linux by deleting the AppImage or removing the package (it asks for your password). Tick <strong>Also delete my Waypoint data</strong> to remove your API keys, the open deck, My templates, My animations and settings as well; leave it off to keep them for a reinstall. Your presentation files are never touched.</p>
+<p>You can also uninstall it the usual way: <strong>Settings, Apps, Installed apps</strong> on Windows, dragging it to the Trash on a Mac, or <code>sudo apt remove waypoint</code>. The README lists the data folders if you want to delete them by hand.</p>
+<p>In a browser, <strong>File, Remove from this browser…</strong> explains how to remove the installed app and deletes Waypoint's data from that browser (other sites keep theirs).</p>
 
 <h2 id="updates">Updates</h2>
 <p>The web version updates itself: when a new version goes live, a bar offers to reload. The desktop app checks GitHub for a new release when it starts and every few hours, downloads it in the background and installs it when you restart. <strong>File, About and updates</strong> shows your version and checks now.</p>

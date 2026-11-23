@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { KINDS, customId, isCustom, library, onLibrary } from '../lib/anims.js';
 import { BUILDS, TRANSITIONS, buildSteps, indexOfId, slideTitle } from '../lib/deck.js';
 import { FONT_CHOICES } from '../lib/fonts.js';
 
@@ -25,19 +27,35 @@ function Num({ label, value, min, max, step = 1, onChange, unit }) {
 }
 
 // Build (entrance) effect of one object.
-function Animation({ slide, el, setEl, onPreview }) {
+function Animation({ deck, slide, el, setEl, onPreview, actions }) {
   const a = el.anim || {};
+  const [lib, setLib] = useState(library);
+  useEffect(() => onLibrary(() => setLib(library())), []);
+  const mine = deck.anims || {};
+  const fromLib = Object.entries(lib).filter(([id]) => !mine[id]);
+  const own = isCustom(a.fx) ? mine[customId(a.fx)] : null;
+  function choose(v) {
+    if (!v) return setEl('anim', undefined);
+    if (v === 'new') return actions.editAnim(null);
+    if (v.startsWith('lib:')) return actions.useAnim(v.slice(4));
+    set({ fx: v, ...(isCustom(v) && mine[customId(v)] && { dur: mine[customId(v)].dur }) });
+  }
   const others = buildSteps({ els: slide.els.filter(e => e !== el) });
   const set = patch => setEl('anim', { fx: 'fade', step: Math.max(1, others + (a.fx ? 0 : 1)), dur: 0.5, ...a, ...patch });
   return (
     <>
       <h3>Build</h3>
       <label className="field"><span>Effect</span>
-        <select value={a.fx || ''} onChange={e => (e.target.value ? set({ fx: e.target.value }) : setEl('anim', undefined))}>
+        <select value={a.fx || ''} onChange={e => choose(e.target.value)}>
           <option value="">None</option>
-          {Object.entries(BUILDS).map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+          <optgroup label="Built in">{Object.entries(BUILDS).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</optgroup>
+          {Object.keys(mine).length > 0 && <optgroup label="Custom, in this deck">{Object.entries(mine).map(([id, x]) => <option key={id} value={`custom:${id}`}>{x.name} ({KINDS[x.kind]})</option>)}</optgroup>}
+          {fromLib.length > 0 && <optgroup label="My animations">{fromLib.map(([id, x]) => <option key={id} value={`lib:${id}`}>{x.name} ({KINDS[x.kind]})</option>)}</optgroup>}
+          {isCustom(a.fx) && !own && <option value={a.fx}>Missing custom animation (plays as a fade)</option>}
+          <option value="new">New custom animation…</option>
         </select>
       </label>
+      {own && <button onClick={() => actions.editAnim(customId(a.fx))}>Edit “{own.name}”…</button>}
       {a.fx && <>
         <label className="field"><span>Starts</span>
           <select value={a.step || 0} onChange={e => set({ step: +e.target.value })}>
@@ -139,7 +157,7 @@ export default function Inspector({ deck, cur, el, setEl, setSlide, actions }) {
         <input type="range" min="0.05" max="1" step="0.05" value={el.opacity ?? 1} onChange={e => setEl('opacity', +e.target.value >= 1 ? undefined : +e.target.value)} />
       </label>
 
-      <Animation slide={slide} el={el} setEl={setEl} onPreview={actions.previewBuild} />
+      <Animation deck={deck} slide={slide} el={el} setEl={setEl} onPreview={actions.previewBuild} actions={actions} />
 
       <h3>Link</h3>
       <label className="field"><span>Links to</span>

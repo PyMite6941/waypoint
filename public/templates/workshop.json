@@ -1,0 +1,729 @@
+{
+ "v": 1,
+ "title": "Workshop: choose your path",
+ "theme": "paper",
+ "assets": {},
+ "slides": [
+  {
+   "id": "qxr6pfz",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "0irry2p"
+   ],
+   "els": [
+    {
+     "id": "9ho3w1w",
+     "type": "text",
+     "x": 120,
+     "y": 300,
+     "w": 1360,
+     "h": 150,
+     "text": "Workshop title",
+     "size": 100,
+     "bold": true,
+     "anim": {
+      "dur": 0.8,
+      "fx": "custom:rise",
+      "step": 0
+     }
+    },
+    {
+     "id": "pefavs1",
+     "type": "rect",
+     "x": 120,
+     "y": 470,
+     "w": 200,
+     "h": 14,
+     "fill": "#c2410c",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 0,
+      "delay": 0.4
+     }
+    },
+    {
+     "id": "zf90h93",
+     "type": "text",
+     "x": 120,
+     "y": 520,
+     "w": 1360,
+     "h": 70,
+     "text": "Facilitator · place · date",
+     "size": 36,
+     "color": "#57534e"
+    }
+   ]
+  },
+  {
+   "id": "0irry2p",
+   "bg": "",
+   "notes": "Ask the group which part they want first.",
+   "next": [
+    "8rowi05",
+    "ox9k0so",
+    "ifozp76"
+   ],
+   "els": [
+    {
+     "id": "5hktv4v",
+     "type": "text",
+     "x": 120,
+     "y": 100,
+     "w": 1360,
+     "h": 110,
+     "text": "Today’s workshop",
+     "size": 72,
+     "bold": true
+    },
+    {
+     "id": "tx69yio",
+     "type": "text",
+     "x": 120,
+     "y": 220,
+     "w": 1360,
+     "h": 70,
+     "text": "Pick where to go next. Every part comes back here.",
+     "size": 34,
+     "color": "#57534e"
+    },
+    {
+     "id": "wklbfdl",
+     "type": "text",
+     "x": 120,
+     "y": 360,
+     "w": 420,
+     "h": 340,
+     "text": "1\nWarm up",
+     "size": 48,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#c2410c",
+     "color": "#ffffff",
+     "radius": 28,
+     "link": "8rowi05",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 0,
+      "delay": 0
+     }
+    },
+    {
+     "id": "gxmek74",
+     "type": "text",
+     "x": 590,
+     "y": 360,
+     "w": 420,
+     "h": 340,
+     "text": "2\nBuild",
+     "size": 48,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#c2410c",
+     "color": "#ffffff",
+     "radius": 28,
+     "link": "ox9k0so",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 0,
+      "delay": 0.15
+     }
+    },
+    {
+     "id": "eyigr21",
+     "type": "text",
+     "x": 1060,
+     "y": 360,
+     "w": 420,
+     "h": 340,
+     "text": "3\nShare",
+     "size": 48,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#c2410c",
+     "color": "#ffffff",
+     "radius": 28,
+     "link": "ifozp76",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 0,
+      "delay": 0.3
+     }
+    }
+   ]
+  },
+  {
+   "id": "8rowi05",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "vcxjrox",
+    "0irry2p"
+   ],
+   "els": [
+    {
+     "id": "7l12xd9",
+     "type": "text",
+     "x": 120,
+     "y": 260,
+     "w": 1360,
+     "h": 80,
+     "text": "Part 1",
+     "size": 40,
+     "color": "#c2410c",
+     "bold": true
+    },
+    {
+     "id": "x8kk032",
+     "type": "text",
+     "x": 120,
+     "y": 340,
+     "w": 1360,
+     "h": 160,
+     "text": "Warm up",
+     "size": 110,
+     "bold": true,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 0
+     }
+    },
+    {
+     "id": "pzvz398",
+     "type": "text",
+     "x": 120,
+     "y": 520,
+     "w": 1360,
+     "h": 80,
+     "text": "What we will do, in one line, and how long it takes.",
+     "size": 38
+    },
+    {
+     "id": "nvc2b8u",
+     "type": "text",
+     "x": 1180,
+     "y": 760,
+     "w": 300,
+     "h": 80,
+     "text": "← Agenda",
+     "size": 30,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#e7e5e4",
+     "radius": 40,
+     "link": "0irry2p"
+    }
+   ]
+  },
+  {
+   "id": "vcxjrox",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "0irry2p"
+   ],
+   "els": [
+    {
+     "id": "epimpf3",
+     "type": "text",
+     "x": 120,
+     "y": 110,
+     "w": 1360,
+     "h": 110,
+     "text": "Warm up: activity",
+     "size": 64,
+     "bold": true
+    },
+    {
+     "id": "s4tnohz",
+     "type": "text",
+     "x": 120,
+     "y": 280,
+     "w": 1000,
+     "h": 90,
+     "text": "1. Step one",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 1
+     }
+    },
+    {
+     "id": "g5lnwp2",
+     "type": "text",
+     "x": 120,
+     "y": 390,
+     "w": 1000,
+     "h": 90,
+     "text": "2. Step two",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 2
+     }
+    },
+    {
+     "id": "zgqwpof",
+     "type": "text",
+     "x": 120,
+     "y": 500,
+     "w": 1000,
+     "h": 90,
+     "text": "3. Step three",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 3
+     }
+    },
+    {
+     "id": "r8bhf75",
+     "type": "text",
+     "x": 1200,
+     "y": 280,
+     "w": 280,
+     "h": 120,
+     "text": "10 min",
+     "size": 48,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#c2410c",
+     "color": "#ffffff",
+     "radius": 60,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pulse",
+      "step": 4
+     }
+    },
+    {
+     "id": "tqcc4xk",
+     "type": "text",
+     "x": 1180,
+     "y": 760,
+     "w": 300,
+     "h": 80,
+     "text": "← Agenda",
+     "size": 30,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#e7e5e4",
+     "radius": 40,
+     "link": "0irry2p"
+    }
+   ]
+  },
+  {
+   "id": "ox9k0so",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "z4iqavy",
+    "0irry2p"
+   ],
+   "els": [
+    {
+     "id": "6xp6f4z",
+     "type": "text",
+     "x": 120,
+     "y": 260,
+     "w": 1360,
+     "h": 80,
+     "text": "Part 2",
+     "size": 40,
+     "color": "#c2410c",
+     "bold": true
+    },
+    {
+     "id": "9ln9652",
+     "type": "text",
+     "x": 120,
+     "y": 340,
+     "w": 1360,
+     "h": 160,
+     "text": "Build",
+     "size": 110,
+     "bold": true,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 0
+     }
+    },
+    {
+     "id": "457h6ks",
+     "type": "text",
+     "x": 120,
+     "y": 520,
+     "w": 1360,
+     "h": 80,
+     "text": "What we will do, in one line, and how long it takes.",
+     "size": 38
+    },
+    {
+     "id": "vixeatm",
+     "type": "text",
+     "x": 1180,
+     "y": 760,
+     "w": 300,
+     "h": 80,
+     "text": "← Agenda",
+     "size": 30,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#e7e5e4",
+     "radius": 40,
+     "link": "0irry2p"
+    }
+   ]
+  },
+  {
+   "id": "z4iqavy",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "0irry2p"
+   ],
+   "els": [
+    {
+     "id": "b5qzdyk",
+     "type": "text",
+     "x": 120,
+     "y": 110,
+     "w": 1360,
+     "h": 110,
+     "text": "Build: activity",
+     "size": 64,
+     "bold": true
+    },
+    {
+     "id": "ltmnm8f",
+     "type": "text",
+     "x": 120,
+     "y": 280,
+     "w": 1000,
+     "h": 90,
+     "text": "1. Step one",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 1
+     }
+    },
+    {
+     "id": "khxgpgc",
+     "type": "text",
+     "x": 120,
+     "y": 390,
+     "w": 1000,
+     "h": 90,
+     "text": "2. Step two",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 2
+     }
+    },
+    {
+     "id": "1kcwdr0",
+     "type": "text",
+     "x": 120,
+     "y": 500,
+     "w": 1000,
+     "h": 90,
+     "text": "3. Step three",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 3
+     }
+    },
+    {
+     "id": "u6fcipu",
+     "type": "text",
+     "x": 1200,
+     "y": 280,
+     "w": 280,
+     "h": 120,
+     "text": "10 min",
+     "size": 48,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#c2410c",
+     "color": "#ffffff",
+     "radius": 60,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pulse",
+      "step": 4
+     }
+    },
+    {
+     "id": "4i1s2jc",
+     "type": "text",
+     "x": 1180,
+     "y": 760,
+     "w": 300,
+     "h": 80,
+     "text": "← Agenda",
+     "size": 30,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#e7e5e4",
+     "radius": 40,
+     "link": "0irry2p"
+    }
+   ]
+  },
+  {
+   "id": "ifozp76",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "xme9sd2",
+    "0irry2p"
+   ],
+   "els": [
+    {
+     "id": "lwyyqw5",
+     "type": "text",
+     "x": 120,
+     "y": 260,
+     "w": 1360,
+     "h": 80,
+     "text": "Part 3",
+     "size": 40,
+     "color": "#c2410c",
+     "bold": true
+    },
+    {
+     "id": "tmolvtn",
+     "type": "text",
+     "x": 120,
+     "y": 340,
+     "w": 1360,
+     "h": 160,
+     "text": "Share",
+     "size": 110,
+     "bold": true,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 0
+     }
+    },
+    {
+     "id": "et3mvgn",
+     "type": "text",
+     "x": 120,
+     "y": 520,
+     "w": 1360,
+     "h": 80,
+     "text": "What we will do, in one line, and how long it takes.",
+     "size": 38
+    },
+    {
+     "id": "9h3nzq9",
+     "type": "text",
+     "x": 1180,
+     "y": 760,
+     "w": 300,
+     "h": 80,
+     "text": "← Agenda",
+     "size": 30,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#e7e5e4",
+     "radius": 40,
+     "link": "0irry2p"
+    }
+   ]
+  },
+  {
+   "id": "xme9sd2",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "0irry2p"
+   ],
+   "els": [
+    {
+     "id": "fbvexys",
+     "type": "text",
+     "x": 120,
+     "y": 110,
+     "w": 1360,
+     "h": 110,
+     "text": "Share: activity",
+     "size": 64,
+     "bold": true
+    },
+    {
+     "id": "ahercla",
+     "type": "text",
+     "x": 120,
+     "y": 280,
+     "w": 1000,
+     "h": 90,
+     "text": "1. Step one",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 1
+     }
+    },
+    {
+     "id": "nnotun9",
+     "type": "text",
+     "x": 120,
+     "y": 390,
+     "w": 1000,
+     "h": 90,
+     "text": "2. Step two",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 2
+     }
+    },
+    {
+     "id": "pvb26nk",
+     "type": "text",
+     "x": 120,
+     "y": 500,
+     "w": 1000,
+     "h": 90,
+     "text": "3. Step three",
+     "size": 42,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 3
+     }
+    },
+    {
+     "id": "t1fricn",
+     "type": "text",
+     "x": 1200,
+     "y": 280,
+     "w": 280,
+     "h": 120,
+     "text": "10 min",
+     "size": 48,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#c2410c",
+     "color": "#ffffff",
+     "radius": 60,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pulse",
+      "step": 4
+     }
+    },
+    {
+     "id": "rcrqew3",
+     "type": "text",
+     "x": 1180,
+     "y": 760,
+     "w": 300,
+     "h": 80,
+     "text": "← Agenda",
+     "size": 30,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#e7e5e4",
+     "radius": 40,
+     "link": "0irry2p"
+    }
+   ]
+  }
+ ],
+ "anims": {
+  "rise": {
+   "name": "Rise",
+   "kind": "in",
+   "dur": 0.7,
+   "ease": "ease-out",
+   "frames": [
+    {
+     "at": 0,
+     "y": 60,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "pop": {
+   "name": "Pop",
+   "kind": "in",
+   "dur": 0.5,
+   "ease": "spring",
+   "frames": [
+    {
+     "at": 0,
+     "scale": 0,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "pulse": {
+   "name": "Pulse",
+   "kind": "emphasis",
+   "dur": 0.6,
+   "ease": "ease-in-out",
+   "frames": [
+    {
+     "at": 0
+    },
+    {
+     "at": 50,
+     "scale": 1.15
+    },
+    {
+     "at": 100
+    }
+   ]
+  }
+ },
+ "template": {
+  "name": "Workshop: choose your path",
+  "description": "An agenda you can jump around: three parts, each with an activity and a way back.",
+  "author": "Waypoint",
+  "license": "CC0",
+  "tags": [
+   "workshop",
+   "branching"
+  ]
+ }
+}

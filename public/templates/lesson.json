@@ -1,0 +1,520 @@
+{
+ "v": 1,
+ "title": "Lesson with a quick check",
+ "theme": "chalk",
+ "assets": {},
+ "slides": [
+  {
+   "id": "pi6dpf8",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "kl30f4f",
+     "type": "text",
+     "x": 120,
+     "y": 300,
+     "w": 1360,
+     "h": 150,
+     "text": "Lesson title",
+     "size": 96,
+     "bold": true,
+     "anim": {
+      "dur": 0.9,
+      "fx": "custom:focus",
+      "step": 0
+     }
+    },
+    {
+     "id": "r8v5nko",
+     "type": "text",
+     "x": 120,
+     "y": 470,
+     "w": 1360,
+     "h": 80,
+     "text": "Course · Week 1",
+     "size": 38,
+     "color": "#f2c14e",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 0,
+      "delay": 0.4
+     }
+    }
+   ]
+  },
+  {
+   "id": "md22vd8",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "safc7kv",
+     "type": "text",
+     "x": 120,
+     "y": 110,
+     "w": 1360,
+     "h": 110,
+     "text": "By the end you can…",
+     "size": 68,
+     "bold": true
+    },
+    {
+     "id": "wikayui",
+     "type": "text",
+     "x": 120,
+     "y": 300,
+     "w": 1360,
+     "h": 100,
+     "text": "✓  Explain the main idea in your own words",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 1
+     }
+    },
+    {
+     "id": "iksdipc",
+     "type": "text",
+     "x": 120,
+     "y": 420,
+     "w": 1360,
+     "h": 100,
+     "text": "✓  Spot it in a real example",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 2
+     }
+    },
+    {
+     "id": "dov6mzh",
+     "type": "text",
+     "x": 120,
+     "y": 540,
+     "w": 1360,
+     "h": 100,
+     "text": "✓  Use it to solve a short problem",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hkox2cg",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "1hmw6xd",
+     "type": "text",
+     "x": 120,
+     "y": 110,
+     "w": 1360,
+     "h": 110,
+     "text": "The key idea",
+     "size": 68,
+     "bold": true
+    },
+    {
+     "id": "xw0jer1",
+     "type": "text",
+     "x": 120,
+     "y": 280,
+     "w": 900,
+     "h": 360,
+     "text": "Explain it simply first. Then add one example people will remember.",
+     "size": 44
+    },
+    {
+     "id": "bg50rpf",
+     "type": "rect",
+     "x": 1100,
+     "y": 280,
+     "w": 380,
+     "h": 380,
+     "fill": "#f2c14e",
+     "radius": 24,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1
+     }
+    },
+    {
+     "id": "3j24gx1",
+     "type": "text",
+     "x": 1120,
+     "y": 280,
+     "w": 340,
+     "h": 380,
+     "text": "Picture or diagram here",
+     "size": 34,
+     "align": "center",
+     "valign": "middle",
+     "color": "#1f3a34",
+     "bold": true,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "xrvb6u9",
+   "bg": "",
+   "notes": "Let the room vote, then click the answer they chose.",
+   "next": [
+    "ggx3v7f",
+    "g15j198"
+   ],
+   "els": [
+    {
+     "id": "yaz1po8",
+     "type": "text",
+     "x": 120,
+     "y": 110,
+     "w": 1360,
+     "h": 110,
+     "text": "Quick check",
+     "size": 68,
+     "bold": true
+    },
+    {
+     "id": "giux48r",
+     "type": "text",
+     "x": 120,
+     "y": 260,
+     "w": 1360,
+     "h": 100,
+     "text": "Which of these is an example of the key idea?",
+     "size": 46
+    },
+    {
+     "id": "1s05gqy",
+     "type": "text",
+     "x": 120,
+     "y": 450,
+     "w": 640,
+     "h": 180,
+     "text": "A · The first option",
+     "size": 40,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#2f5a50",
+     "color": "#ffffff",
+     "radius": 20,
+     "link": "ggx3v7f",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 0,
+      "delay": 0.2
+     }
+    },
+    {
+     "id": "ggiswze",
+     "type": "text",
+     "x": 840,
+     "y": 450,
+     "w": 640,
+     "h": 180,
+     "text": "B · The second option",
+     "size": 40,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#2f5a50",
+     "color": "#ffffff",
+     "radius": 20,
+     "link": "g15j198",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 0,
+      "delay": 0.4
+     }
+    },
+    {
+     "id": "xpzznld",
+     "type": "text",
+     "x": 120,
+     "y": 700,
+     "w": 1360,
+     "h": 60,
+     "text": "Click an answer while presenting.",
+     "size": 28,
+     "color": "#a7c4bc"
+    }
+   ]
+  },
+  {
+   "id": "ggx3v7f",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "5toqxxc"
+   ],
+   "els": [
+    {
+     "id": "sdaq4ij",
+     "type": "text",
+     "x": 120,
+     "y": 260,
+     "w": 1360,
+     "h": 160,
+     "text": "Yes!",
+     "size": 120,
+     "bold": true,
+     "color": "#f2c14e",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 0
+     }
+    },
+    {
+     "id": "6llt4dy",
+     "type": "text",
+     "x": 120,
+     "y": 450,
+     "w": 1360,
+     "h": 100,
+     "text": "Say why it is right, in one sentence.",
+     "size": 46
+    },
+    {
+     "id": "c1uawci",
+     "type": "text",
+     "x": 1080,
+     "y": 700,
+     "w": 400,
+     "h": 100,
+     "text": "Continue →",
+     "size": 36,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#2f5a50",
+     "color": "#ffffff",
+     "radius": 20,
+     "link": "5toqxxc"
+    }
+   ]
+  },
+  {
+   "id": "g15j198",
+   "bg": "",
+   "notes": "",
+   "next": [
+    "xrvb6u9"
+   ],
+   "els": [
+    {
+     "id": "zvwewsl",
+     "type": "text",
+     "x": 120,
+     "y": 260,
+     "w": 1360,
+     "h": 160,
+     "text": "Not quite",
+     "size": 110,
+     "bold": true,
+     "color": "#ff8a7a",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:wiggle",
+      "step": 0
+     }
+    },
+    {
+     "id": "lwd27l6",
+     "type": "text",
+     "x": 120,
+     "y": 450,
+     "w": 1360,
+     "h": 100,
+     "text": "Give a hint, then try again.",
+     "size": 46
+    },
+    {
+     "id": "xkk22mv",
+     "type": "text",
+     "x": 120,
+     "y": 700,
+     "w": 400,
+     "h": 100,
+     "text": "← Try again",
+     "size": 36,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#2f5a50",
+     "color": "#ffffff",
+     "radius": 20,
+     "link": "xrvb6u9"
+    }
+   ]
+  },
+  {
+   "id": "5toqxxc",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "6ezjyjl",
+     "type": "text",
+     "x": 120,
+     "y": 110,
+     "w": 1360,
+     "h": 110,
+     "text": "Remember",
+     "size": 68,
+     "bold": true
+    },
+    {
+     "id": "7fwt7gu",
+     "type": "text",
+     "x": 120,
+     "y": 300,
+     "w": 1360,
+     "h": 100,
+     "text": "1.  One-line recap of the idea",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 1
+     }
+    },
+    {
+     "id": "k3bwfj0",
+     "type": "text",
+     "x": 120,
+     "y": 420,
+     "w": 1360,
+     "h": 100,
+     "text": "2.  Where people will meet it",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 2
+     }
+    },
+    {
+     "id": "0ozsa7l",
+     "type": "text",
+     "x": 120,
+     "y": 540,
+     "w": 1360,
+     "h": 100,
+     "text": "3.  What to practise next",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 3
+     }
+    }
+   ]
+  }
+ ],
+ "anims": {
+  "focus": {
+   "name": "Focus",
+   "kind": "in",
+   "dur": 0.8,
+   "ease": "ease-out",
+   "frames": [
+    {
+     "at": 0,
+     "scale": 1.08,
+     "opacity": 0,
+     "blur": 24
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "wiggle": {
+   "name": "Wiggle",
+   "kind": "emphasis",
+   "dur": 0.6,
+   "ease": "ease-in-out",
+   "frames": [
+    {
+     "at": 0
+    },
+    {
+     "at": 25,
+     "rotate": -6
+    },
+    {
+     "at": 75,
+     "rotate": 6
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "rise": {
+   "name": "Rise",
+   "kind": "in",
+   "dur": 0.7,
+   "ease": "ease-out",
+   "frames": [
+    {
+     "at": 0,
+     "y": 60,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "pop": {
+   "name": "Pop",
+   "kind": "in",
+   "dur": 0.5,
+   "ease": "spring",
+   "frames": [
+    {
+     "at": 0,
+     "scale": 0,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  }
+ },
+ "template": {
+  "name": "Lesson with a quick check",
+  "description": "Goals, a key idea and a question that branches to “Yes!” or “Not quite”, then a recap.",
+  "author": "Waypoint",
+  "license": "CC0",
+  "tags": [
+   "education",
+   "branching"
+  ]
+ }
+}

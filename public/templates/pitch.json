@@ -1,0 +1,619 @@
+{
+ "v": 1,
+ "title": "Pitch: one big idea",
+ "theme": "signal",
+ "assets": {},
+ "slides": [
+  {
+   "id": "tr2tdsp",
+   "bg": "",
+   "notes": "Say the idea in one breath. Everything after this slide proves it.",
+   "next": [],
+   "els": [
+    {
+     "id": "11b0mt2",
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 40,
+     "h": 900,
+     "fill": "#1d4ed8",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 0
+     }
+    },
+    {
+     "id": "jwv4v7q",
+     "type": "text",
+     "x": 140,
+     "y": 280,
+     "w": 1300,
+     "h": 200,
+     "text": "Your big idea, in one line",
+     "size": 96,
+     "bold": true,
+     "color": "#0b1f33",
+     "anim": {
+      "dur": 1,
+      "fx": "custom:swoop",
+      "step": 0,
+      "delay": 0.1
+     }
+    },
+    {
+     "id": "ld9f9vw",
+     "type": "text",
+     "x": 140,
+     "y": 500,
+     "w": 1300,
+     "h": 80,
+     "text": "Who you are · what you are asking for · date",
+     "size": 36,
+     "color": "#475569",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 0,
+      "delay": 0.5
+     }
+    }
+   ]
+  },
+  {
+   "id": "j777c88",
+   "bg": "",
+   "notes": "One click per point. Keep each to a sentence.",
+   "next": [],
+   "els": [
+    {
+     "id": "lgy9m96",
+     "type": "text",
+     "x": 140,
+     "y": 110,
+     "w": 1320,
+     "h": 110,
+     "text": "The problem",
+     "size": 72,
+     "bold": true
+    },
+    {
+     "id": "aao50ri",
+     "type": "text",
+     "x": 140,
+     "y": 300,
+     "w": 1320,
+     "h": 90,
+     "text": "1 · Who has it, and how often",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 1
+     }
+    },
+    {
+     "id": "psdk44x",
+     "type": "text",
+     "x": 140,
+     "y": 420,
+     "w": 1320,
+     "h": 90,
+     "text": "2 · What it costs them today",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 2
+     }
+    },
+    {
+     "id": "samz0k6",
+     "type": "text",
+     "x": 140,
+     "y": 540,
+     "w": 1320,
+     "h": 90,
+     "text": "3 · Why the usual fixes fall short",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "b1njljn",
+   "bg": "#0b1f33",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "czacvcy",
+     "type": "rect",
+     "x": 0,
+     "y": 0,
+     "w": 1600,
+     "h": 900,
+     "fill": "#0b1f33"
+    },
+    {
+     "id": "tvuplsd",
+     "type": "text",
+     "x": 140,
+     "y": 140,
+     "w": 1320,
+     "h": 80,
+     "text": "Our idea",
+     "size": 36,
+     "color": "#93c5fd",
+     "bold": true
+    },
+    {
+     "id": "rkslgek",
+     "type": "text",
+     "x": 140,
+     "y": 270,
+     "w": 1320,
+     "h": 300,
+     "text": "“A sentence that makes the room lean in.”",
+     "size": 84,
+     "bold": true,
+     "color": "#ffffff",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:swoop",
+      "step": 0
+     }
+    },
+    {
+     "id": "52ltrfd",
+     "type": "rect",
+     "x": 140,
+     "y": 620,
+     "w": 260,
+     "h": 12,
+     "fill": "#60a5fa",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pulse",
+      "step": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "k5vvk91",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "mox32mj",
+     "type": "text",
+     "x": 140,
+     "y": 110,
+     "w": 1320,
+     "h": 110,
+     "text": "How it works",
+     "size": 72,
+     "bold": true
+    },
+    {
+     "id": "35cdh0s",
+     "type": "ellipse",
+     "x": 140,
+     "y": 300,
+     "w": 120,
+     "h": 120,
+     "fill": "#1d4ed8",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1,
+      "delay": 0
+     }
+    },
+    {
+     "id": "udjkcm6",
+     "type": "text",
+     "x": 140,
+     "y": 300,
+     "w": 120,
+     "h": 120,
+     "text": "1",
+     "size": 56,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "color": "#ffffff",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1,
+      "delay": 0
+     }
+    },
+    {
+     "id": "e6m6wz2",
+     "type": "text",
+     "x": 140,
+     "y": 460,
+     "w": 380,
+     "h": 220,
+     "text": "Step one\nA short line on what happens.",
+     "size": 34,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 1,
+      "delay": 0.2
+     }
+    },
+    {
+     "id": "2xcyqm0",
+     "type": "ellipse",
+     "x": 600,
+     "y": 300,
+     "w": 120,
+     "h": 120,
+     "fill": "#1d4ed8",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1,
+      "delay": 0.25
+     }
+    },
+    {
+     "id": "u9ydcjq",
+     "type": "text",
+     "x": 600,
+     "y": 300,
+     "w": 120,
+     "h": 120,
+     "text": "2",
+     "size": 56,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "color": "#ffffff",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1,
+      "delay": 0.25
+     }
+    },
+    {
+     "id": "1zrr9qi",
+     "type": "text",
+     "x": 600,
+     "y": 460,
+     "w": 380,
+     "h": 220,
+     "text": "Step two\nA short line on what happens.",
+     "size": 34,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 1,
+      "delay": 0.45
+     }
+    },
+    {
+     "id": "czexqk3",
+     "type": "ellipse",
+     "x": 1060,
+     "y": 300,
+     "w": 120,
+     "h": 120,
+     "fill": "#1d4ed8",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1,
+      "delay": 0.5
+     }
+    },
+    {
+     "id": "90fpuoz",
+     "type": "text",
+     "x": 1060,
+     "y": 300,
+     "w": 120,
+     "h": 120,
+     "text": "3",
+     "size": 56,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "color": "#ffffff",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1,
+      "delay": 0.5
+     }
+    },
+    {
+     "id": "cylgabo",
+     "type": "text",
+     "x": 1060,
+     "y": 460,
+     "w": 380,
+     "h": 220,
+     "text": "Step three\nA short line on what happens.",
+     "size": 34,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 1,
+      "delay": 0.7
+     }
+    }
+   ]
+  },
+  {
+   "id": "eigwfhp",
+   "bg": "",
+   "notes": "Replace with your real numbers. One click per number.",
+   "next": [],
+   "els": [
+    {
+     "id": "xqv18uk",
+     "type": "text",
+     "x": 140,
+     "y": 110,
+     "w": 1320,
+     "h": 110,
+     "text": "Proof so far",
+     "size": 72,
+     "bold": true
+    },
+    {
+     "id": "9pvan5n",
+     "type": "text",
+     "x": 140,
+     "y": 320,
+     "w": 420,
+     "h": 170,
+     "text": "120",
+     "size": 120,
+     "bold": true,
+     "color": "#1d4ed8",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1
+     }
+    },
+    {
+     "id": "5u1oc0m",
+     "type": "text",
+     "x": 140,
+     "y": 500,
+     "w": 420,
+     "h": 80,
+     "text": "people tried it",
+     "size": 34,
+     "color": "#475569",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 1,
+      "delay": 0.15
+     }
+    },
+    {
+     "id": "abqsm94",
+     "type": "text",
+     "x": 600,
+     "y": 320,
+     "w": 420,
+     "h": 170,
+     "text": "4.8★",
+     "size": 120,
+     "bold": true,
+     "color": "#1d4ed8",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 2
+     }
+    },
+    {
+     "id": "x5u4z3f",
+     "type": "text",
+     "x": 600,
+     "y": 500,
+     "w": 420,
+     "h": 80,
+     "text": "average rating",
+     "size": 34,
+     "color": "#475569",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 2,
+      "delay": 0.15
+     }
+    },
+    {
+     "id": "dpvyokf",
+     "type": "text",
+     "x": 1060,
+     "y": 320,
+     "w": 420,
+     "h": 170,
+     "text": "3×",
+     "size": 120,
+     "bold": true,
+     "color": "#1d4ed8",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 3
+     }
+    },
+    {
+     "id": "lr9qxxa",
+     "type": "text",
+     "x": 1060,
+     "y": 500,
+     "w": 420,
+     "h": 80,
+     "text": "faster than before",
+     "size": 34,
+     "color": "#475569",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:slideup",
+      "step": 3,
+      "delay": 0.15
+     }
+    }
+   ]
+  },
+  {
+   "id": "dl5xyh6",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "hyys6v2",
+     "type": "text",
+     "x": 140,
+     "y": 200,
+     "w": 1320,
+     "h": 110,
+     "text": "The ask",
+     "size": 72,
+     "bold": true
+    },
+    {
+     "id": "r13f64c",
+     "type": "text",
+     "x": 140,
+     "y": 340,
+     "w": 1320,
+     "h": 90,
+     "text": "What you need, from whom, by when.",
+     "size": 44
+    },
+    {
+     "id": "11gw43t",
+     "type": "text",
+     "x": 140,
+     "y": 560,
+     "w": 420,
+     "h": 120,
+     "text": "Let’s talk",
+     "size": 44,
+     "bold": true,
+     "align": "center",
+     "valign": "middle",
+     "fill": "#1d4ed8",
+     "color": "#ffffff",
+     "radius": 60,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pulse",
+      "step": 1
+     }
+    }
+   ]
+  }
+ ],
+ "anims": {
+  "swoop": {
+   "name": "Swoop",
+   "kind": "in",
+   "dur": 1,
+   "ease": "snap",
+   "frames": [
+    {
+     "at": 0,
+     "x": -600,
+     "y": 300,
+     "scale": 0.4,
+     "rotate": -25,
+     "opacity": 0
+    },
+    {
+     "at": 70,
+     "scale": 1.04,
+     "rotate": 4,
+     "opacity": 1
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "pop": {
+   "name": "Pop in",
+   "kind": "in",
+   "dur": 0.5,
+   "ease": "spring",
+   "frames": [
+    {
+     "at": 0,
+     "scale": 0,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "pulse": {
+   "name": "Pulse",
+   "kind": "emphasis",
+   "dur": 0.6,
+   "ease": "ease-in-out",
+   "frames": [
+    {
+     "at": 0
+    },
+    {
+     "at": 50,
+     "scale": 1.15
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "slideup": {
+   "name": "Slide up",
+   "kind": "in",
+   "dur": 0.7,
+   "ease": "snap",
+   "frames": [
+    {
+     "at": 0,
+     "y": 120,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  }
+ },
+ "template": {
+  "name": "Pitch: one big idea",
+  "description": "Six slides from the idea to the ask, with builds that land one point at a time.",
+  "author": "Waypoint",
+  "license": "CC0",
+  "tags": [
+   "pitch",
+   "business"
+  ]
+ }
+}

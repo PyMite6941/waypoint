@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ACTIONS, actionOf, clickerSettings, keyId, keyLabel, saveClicker } from '../lib/clicker.js';
-import { Modal } from './AiDialogs.jsx';
+import Modal from './Modal.jsx';
 
 // Clicker setup: press the clicker's buttons and see what each one does in a show. A button
 // Waypoint does not know yet can be taught here; the choice is kept on this device.

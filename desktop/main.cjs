@@ -254,6 +254,67 @@ ipcMain.handle('env:show', async event => {
   try { await fs.access(envFile()); shell.showItemInFolder(envFile()); } catch { shell.openPath(path.dirname(envFile())); }
 });
 
+// Uninstall from inside the app: runs the system's own uninstaller (or moves the app to the
+// Trash) after Waypoint quits, and with `wipe` also deletes Waypoint's data: the .env keys,
+// the saved deck, templates, animations, settings and the update cache. Nothing outside these
+// folders is touched.
+const exists = p => fs.access(p).then(() => true, () => false);
+function installKind() {
+  if (!app.isPackaged) return { kind: 'source' };
+  if (process.platform === 'win32') return { kind: 'windows', uninstaller: path.join(path.dirname(process.execPath), `Uninstall ${app.getName()}.exe`) };
+  if (process.platform === 'darwin') {
+    const bundle = path.resolve(process.execPath, '..', '..', '..');
+    return { kind: bundle.startsWith('/Volumes/') ? 'mac-dmg' : 'mac', bundle };
+  }
+  if (process.env.APPIMAGE) return { kind: 'appimage', file: process.env.APPIMAGE };
+  return { kind: 'deb' };
+}
+async function dataFolders() {
+  const home = os.homedir();
+  const cache = process.platform === 'win32' ? process.env.LOCALAPPDATA || path.join(home, 'AppData', 'Local')
+    : process.platform === 'darwin' ? path.join(home, 'Library', 'Caches') : process.env.XDG_CACHE_HOME || path.join(home, '.cache');
+  const list = [app.getPath('userData'), path.join(cache, 'waypoint-updater')];
+  if (process.platform === 'darwin') list.push(path.join(home, 'Library', 'Logs', app.getName()));
+  const out = [];
+  // Only Waypoint's own folders, never a home or system folder.
+  for (const dir of list) if (/waypoint/i.test(path.basename(dir)) && await exists(dir)) out.push(dir);
+  return out;
+}
+ipcMain.handle('app:uninstallInfo', async event => {
+  if (!ownPage(event)) throw new Error('Not allowed');
+  const k = installKind();
+  const pkexec = k.kind === 'deb' && await exists('/usr/bin/pkexec');
+  const ready = k.kind === 'windows' ? await exists(k.uninstaller) : k.kind === 'mac' || k.kind === 'appimage' || pkexec;
+  return { kind: k.kind, ready, data: await dataFolders(), command: k.kind === 'deb' ? 'sudo apt remove waypoint' : '' };
+});
+ipcMain.handle('app:uninstall', async (event, { wipe = false } = {}) => {
+  if (!ownPage(event)) throw new Error('Not allowed');
+  const k = installKind(), dirs = wipe ? await dataFolders() : [], pid = String(process.pid);
+  const detach = (cmd, args) => spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true }).unref();
+  if (k.kind === 'windows') {
+    if (!await exists(k.uninstaller)) throw new Error('The uninstaller is missing. Use Settings, Apps, Installed apps instead.');
+    const q = v => `'${String(v).replace(/'/g, "''")}'`;
+    const script = [
+      `$ProgressPreference = 'SilentlyContinue'`,
+      `try { Wait-Process -Id ${pid} -Timeout 60 -ErrorAction Stop } catch {}`,
+      `$u = Start-Process -FilePath ${q(k.uninstaller)} -PassThru -Wait`,
+      `if ($u.ExitCode -eq 0) { Start-Sleep -Seconds 2; foreach ($d in @(${dirs.map(q).join(',')})) { Remove-Item -LiteralPath $d -Recurse -Force -ErrorAction SilentlyContinue } }`,
+    ].join('\n');
+    detach('powershell.exe', ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]);
+  } else if (k.kind === 'mac' || k.kind === 'appimage' || k.kind === 'deb') {
+    // Paths go in as arguments ("$@"), never into the script text.
+    const remove = k.kind === 'mac'
+      ? `osascript -e 'on run argv' -e 'tell application "Finder" to delete (POSIX file (item 1 of argv) as alias)' -e 'end run' "$1"`
+      : k.kind === 'appimage' ? `rm -f -- "$1"` : `pkexec apt-get remove -y waypoint`;
+    if (k.kind === 'deb' && !await exists('/usr/bin/pkexec')) throw new Error('Run sudo apt remove waypoint in a terminal.');
+    const script = `while kill -0 "$0" 2>/dev/null; do sleep 0.5; done; ${remove} && { shift; for d in "$@"; do rm -rf -- "$d"; done; }`;
+    detach('/bin/sh', ['-c', script, pid, k.bundle || k.file || '-', ...dirs]);
+  } else {
+    throw new Error(k.kind === 'mac-dmg' ? 'Waypoint is running from its disk image. Eject the disk image instead; nothing is installed.' : 'Waypoint is running from source. Delete the project folder to remove it.');
+  }
+  setTimeout(() => app.quit(), 300);
+});
+
 // Subscriptions through the vendor's own command-line tool, signed in by the person with
 // their own account: Codex CLI (ChatGPT plan) and Gemini CLI (Google account). Only these two
 // programs with these fixed arguments can be run, in an empty temporary folder, read-only;
@@ -351,9 +412,12 @@ const run = (cmd, args, timeout = 15000) => new Promise(resolve => {
 });
 const WIN_BT = String.raw`
 $ErrorActionPreference = 'SilentlyContinue'
+$ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
-$devs = @(Get-PnpDevice -Class Bluetooth | Where-Object { $_.InstanceId -match '^BTH(ENUM|LE)\\DEV_' })
-$hid = @(Get-PnpDevice -Class HIDClass,Keyboard,Mouse | Where-Object { $_.InstanceId -match '00001124|00001812' }).InstanceId -join ' '
+# One device query for everything: each query costs about two seconds.
+$all = @(Get-CimInstance Win32_PnPEntity -Filter "PNPClass='Bluetooth' OR PNPClass='HIDClass' OR PNPClass='Keyboard' OR PNPClass='Mouse'")
+$devs = @($all | Where-Object { $_.PNPClass -eq 'Bluetooth' -and $_.PNPDeviceID -match '^BTH(ENUM|LE)\\DEV_' } | ForEach-Object { [pscustomobject]@{ InstanceId = $_.PNPDeviceID; FriendlyName = $_.Name } })
+$hid = @($all | Where-Object { $_.PNPClass -ne 'Bluetooth' -and $_.PNPDeviceID -match '00001124|00001812' }).PNPDeviceID -join ' '
 $conn = @{}
 if ($devs.Count) { Get-PnpDeviceProperty -InstanceId $devs.InstanceId -KeyName '{83DA6326-97A6-4088-9453-A1923F573B29} 15' | ForEach-Object { $conn[$_.InstanceId] = [bool]$_.Data } }
 $list = foreach ($d in $devs) {

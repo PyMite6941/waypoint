@@ -42,7 +42,7 @@ export async function importFiles(files) {
 async function importPdf(bytes, name) {
   const pdfjs = await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = (await import('pdfjs-dist/build/pdf.worker.min.mjs?url')).default;
-  const pdf = await pdfjs.getDocument({ data: bytes.slice() }).promise;
+  const pdf = await pdfjs.getDocument({ data: bytes.slice(), isEvalSupported: false }).promise;
   const assets = {}, slides = [];
   for (let n = 1; n <= pdf.numPages; n++) {
     const page = await pdf.getPage(n);

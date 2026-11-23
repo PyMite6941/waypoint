@@ -1,7 +1,6 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useReducer, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { AiGenerate, AiSettings } from './components/AiDialogs.jsx';
-import { AboutDialog, EXPORTS, ExportDialog, ImportDialog, InstallDialog, UpdateBar, preferredExport } from './components/FileDialogs.jsx';
+import { AboutDialog, EXPORTS, ExportDialog, ImportDialog, InstallDialog, UninstallDialog, UpdateBar, preferredExport } from './components/FileDialogs.jsx';
 import { onOpenFiles } from './lib/install.js';
 import ClickerDialog from './components/ClickerDialog.jsx';
 import ClickerMenu from './components/ClickerMenu.jsx';
@@ -11,15 +10,22 @@ import Presenter from './components/Presenter.jsx';
 import Show from './components/Show.jsx';
 import SlideView, { Thumb } from './components/SlideView.jsx';
 import Stage from './components/Stage.jsx';
-import { H, LAYOUTS, PLACEHOLDER, THEMES, W, layoutSlide, newDeck, newSlide, textEl, uid } from './lib/deck.js';
+import { H, LAYOUTS, PLACEHOLDER, THEMES, W, buildSteps, layoutSlide, newDeck, newSlide, textEl, uid } from './lib/deck.js';
 import { isDeckFile } from './lib/convert/import.js';
-import { importLink } from './lib/convert/links.js';
 import { fileName, forgetPath, openDeck, pickImage, readDropped, readImage, saveDeck, saveFile } from './lib/files.js';
 import { loadFonts } from './lib/fonts.js';
 import { subscribe } from './lib/updates.js';
 import { closeAudience, openAudience } from './lib/present.js';
 import { initState, reducer } from './lib/state.js';
+import { library, saveToLibrary } from './lib/anims.js';
 import { listen, send, storeDeck } from './lib/store.js';
+
+// The AI dialogs (and the key store behind them) load the first time one is opened.
+const AiGenerate = lazy(() => import('./components/AiDialogs.jsx').then(m => ({ default: m.AiGenerate })));
+const AiSettings = lazy(() => import('./components/AiDialogs.jsx').then(m => ({ default: m.AiSettings })));
+const AnimEditor = lazy(() => import('./components/AnimEditor.jsx'));
+const TemplatesDialog = lazy(() => import('./components/TemplatesDialog.jsx'));
+const firstLine = text => String(text || '').trim().split('\n')[0].slice(0, 40);
 
 const typing = e => e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
 const copyOf = el => ({ ...el, id: uid(), x: el.x + 20, y: el.y + 20 });
@@ -62,6 +68,7 @@ export default function App({ initial }) {
   const [cols, setColsState] = useState(savedCols);
   const setCols = n => { setColsState(n); saveCols(n); };
   const [ai, setAi] = useState(false);              // the Generate dialog is open
+  const [animEdit, setAnimEdit] = useState(null);   // the custom animation editor is open: { start }
   const [aiSettings, setAiSettings] = useState(null); // the AI settings dialog is open: called with the result
   const [help, setHelp] = useState(false);
   const [dialog, setDialog] = useState(null);       // 'import' | 'export' | 'about'
@@ -74,6 +81,8 @@ export default function App({ initial }) {
   const [unsaved, setUnsaved] = useState(false);
   const [printing, setPrinting] = useState(false);
   const clip = useRef(null), editingRef = useRef(null), dragFrom = useRef(null);
+  // Keep the open slide in view in the strip (when it changes, not on every edit).
+  useEffect(() => { document.querySelector('#strip > .on')?.scrollIntoView({ block: 'nearest' }); }, [cur, editMode]);
 
   /* ---------- changing the deck ---------- */
 
@@ -120,7 +129,25 @@ export default function App({ initial }) {
     change(d => { d.deck.assets[asset] = img.src; d.deck.slides[d.cur].els.push(made); d.sel = made.id; });
   }
 
+  // Puts custom animation `id` on the selected object, keeping its build step if it had one.
+  const putAnim = (d, id, anim) => {
+    const sl = d.deck.slides[d.cur], e = sl.els.find(x => x.id === d.sel);
+    if (!e) return;
+    const others = buildSteps({ els: sl.els.filter(x => x !== e) });
+    e.anim = { ...e.anim, fx: `custom:${id}`, step: e.anim?.fx ? e.anim.step || 0 : Math.max(1, others + 1), dur: anim.dur };
+  };
   const actions = {
+    // Custom animations: make or change one, or bring one in from My animations.
+    editAnim(id) { setAnimEdit({ start: id && deck.anims?.[id] ? { id, anim: deck.anims[id] } : null }); },
+    saveAnim(id, anim, { library: keep }) {
+      if (keep) saveToLibrary(id, anim);
+      change(d => { d.deck.anims = { ...d.deck.anims, [id]: anim }; putAnim(d, id, anim); });
+      setAnimEdit(null);
+    },
+    useAnim(id) {
+      const anim = library()[id];
+      if (anim) change(d => { d.deck.anims = { ...d.deck.anims, [id]: anim }; putAnim(d, id, anim); });
+    },
     text() { const made = textEl('Text', 500, 400, 600, 70, 44); addEl(made); startEdit(made.id); },
     rect() { addEl({ id: uid(), type: 'rect', x: 600, y: 300, w: 400, h: 300 }); },
     ellipse() { addEl({ id: uid(), type: 'ellipse', x: 650, y: 300, w: 300, h: 300 }); },
@@ -166,7 +193,7 @@ export default function App({ initial }) {
         d.sel = null;
       });
     },
-    dupSlide() { insertSlide({ ...structuredClone(slide), id: uid(), els: slide.els.map(e => ({ ...e, id: uid() })) }); },
+    dupSlide() { const copy = structuredClone(slide); insertSlide({ ...copy, id: uid(), els: copy.els.map(e => ({ ...e, id: uid() })) }); },
     delSlide() {
       const blank = newSlide();
       change(d => { d.deck.slides.splice(d.cur, 1); if (!d.deck.slides.length) d.deck.slides.push(blank); d.sel = null; });
@@ -191,6 +218,7 @@ export default function App({ initial }) {
       if (!src) return;
       setBusy(`Getting the latest version${src.service ? ` from ${src.service}` : ''}…`);
       try {
+        const { importLink } = await import('./lib/convert/links.js');
         const result = await importLink(src.url, { onStatus: setBusy });
         if (result.manual) { setBusy(''); setDialog('import'); return; }
         actions.useImported(result, 'replace');
@@ -204,6 +232,7 @@ export default function App({ initial }) {
       // One change, so Undo brings the previous deck back. Old pictures stay available for that.
       change(d => {
         d.deck.assets = { ...d.deck.assets, ...made.assets };
+        if (made.anims) d.deck.anims = { ...d.deck.anims, ...made.anims };   // custom animations come along
         if (mode === 'add') { d.deck.slides.splice(d.cur + 1, 0, ...made.slides); d.cur += 1; }
         else {
           Object.assign(d.deck, { title: made.title, theme: made.theme, slides: made.slides });
@@ -280,7 +309,7 @@ export default function App({ initial }) {
 
   // Window-level behaviour. Handlers read the latest render through a ref, so listeners attach once.
   const live = useRef({});
-  live.current = { actions, show, control, modal: ai || aiSettings || help || dialog, setHelp, cur, sel, el, addEl, addImage, onSlide, editMode, setEditMode, cols, count: deck.slides.length };
+  live.current = { actions, show, control, modal: ai || aiSettings || animEdit || help || dialog, setHelp, cur, sel, el, addEl, addImage, onSlide, editMode, setEditMode, cols, count: deck.slides.length };
   useEffect(() => {
     const onKey = e => {
       const a = live.current;
@@ -399,8 +428,10 @@ export default function App({ initial }) {
             <summary>File</summary>
             <div onClick={closeMenu}>
               <button onClick={actions.newDeck}>New deck</button>
+              <button onClick={() => setDialog('templates')}>New from template…</button>
               <button onClick={actions.open} title="PowerPoint, Keynote, Google Slides, OpenDocument, PDF, Markdown, pictures (Ctrl+O)">Open or import…</button>
               <button onClick={actions.save} title="Ctrl+S">Save file</button>
+              <button onClick={() => setDialog('templates:mine')}>Save as template…</button>
               {deck.source && <button onClick={actions.updateFromLink} title={deck.source.url}>Update from link</button>}
               <hr />
               <button onClick={() => setDialog('export')}>Export…</button>
@@ -411,6 +442,7 @@ export default function App({ initial }) {
               <button onClick={() => setHelp(true)}>Keyboard shortcuts</button>
               <button onClick={() => setDialog('clicker')}>Clicker setup…</button>
               <button onClick={() => setDialog('install')}>{window.desktop ? 'Pin to taskbar or Dock…' : 'Install as an app…'}</button>
+              <button onClick={() => setDialog('uninstall')}>{window.desktop ? 'Uninstall Waypoint…' : 'Remove from this browser…'}</button>
               <button onClick={() => setDialog('about')}>About and updates{['ready', 'manual'].includes(update?.state) ? ' •' : ''}</button>
               <a href="docs/" target="_blank" rel="noopener">Guide</a>
             </div>
@@ -447,7 +479,6 @@ export default function App({ initial }) {
               {deck.slides.map((s, i) => (
                 <button
                   key={s.id} className={i === cur ? 'on' : undefined} draggable
-                  ref={i === cur ? n => n?.scrollIntoView({ block: 'nearest' }) : undefined}
                   onClick={() => dispatch({ type: 'view', cur: i })}
                   onDragStart={() => { dragFrom.current = i; }}
                   onDragOver={e => e.preventDefault()}
@@ -485,6 +516,7 @@ export default function App({ initial }) {
         />
       )}
       {show && <Show deck={deck} start={show.at} fullscreen={show.fullscreen} enter={show.enter} onExit={i => { setShow(null); dispatch({ type: 'view', cur: i }); }} />}
+      <Suspense fallback={null}>
       {ai && (
         <AiGenerate
           deck={deck} cur={cur} onClose={() => setAi(false)}
@@ -492,7 +524,9 @@ export default function App({ initial }) {
           onInsert={actions.insertSlides}
         />
       )}
+      {animEdit && <AnimEditor start={animEdit.start} sample={el ? (el.type === 'text' && firstLine(el.text)) || 'Your object' : ''} onSave={actions.saveAnim} onClose={() => setAnimEdit(null)} />}
       {aiSettings && <AiSettings onClose={s => { const then = aiSettings; setAiSettings(null); then(s); }} />}
+      </Suspense>
       {help && (
         <div className="helpSheet" role="dialog" aria-label="Keyboard shortcuts" onClick={() => setHelp(false)} onKeyDown={e => e.key === 'Escape' && setHelp(false)}>
           <div onClick={e => e.stopPropagation()}>
@@ -507,8 +541,10 @@ export default function App({ initial }) {
       )}
       {dialog === 'import' && <ImportDialog busy={busy} onClose={() => { setDialog(null); setBusy(''); }} onFiles={actions.importFiles} onResult={actions.useImported} />}
       {dialog === 'export' && <ExportDialog busy={busy} onClose={() => { setDialog(null); setBusy(''); }} onExport={actions.exportAs} />}
+      <Suspense fallback={null}>{dialog?.startsWith('templates') && <TemplatesDialog deck={deck} start={dialog === 'templates:mine' ? 'mine' : 'gallery'} onUse={actions.useImported} onClose={() => setDialog(null)} />}</Suspense>
       {dialog === 'clicker' && <ClickerDialog onClose={() => setDialog(null)} />}
       {dialog === 'install' && <InstallDialog onClose={() => setDialog(null)} />}
+      {dialog === 'uninstall' && <UninstallDialog onClose={() => setDialog(null)} />}
       {dialog === 'about' && <AboutDialog update={update} onClose={() => setDialog(null)} />}
       {busy && !dialog && <div className="busy" role="status"><span className="spinner small" /> {busy}</div>}
       {rendering && <div id="render" aria-hidden="true">{deck.slides.map(s => <div className="page" key={s.id}><SlideView deck={deck} slide={s} /></div>)}</div>}

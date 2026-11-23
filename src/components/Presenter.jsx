@@ -8,6 +8,22 @@ import { ClickerStatus } from './ClickerMenu.jsx';
 
 const two = n => String(n).padStart(2, '0');
 
+// The talk timer and the time of day tick on their own, so the slides are not redrawn every second.
+function useNow(every = 1000) {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => { const tick = setInterval(() => setNow(Date.now()), every); return () => clearInterval(tick); }, [every]);
+  return now;
+}
+function Timer() {
+  const [started, setStarted] = useState(Date.now);
+  const elapsed = Math.max(0, Math.floor((useNow() - started) / 1000));
+  return <button className="pvTimer" title="Click to reset" onClick={() => setStarted(Date.now())}>{two(Math.floor(elapsed / 60))}:{two(elapsed % 60)}</button>;
+}
+function Clock() {
+  const clock = new Date(useNow(5000));
+  return <span className="pvClock">{clock.getHours()}:{two(clock.getMinutes())}</span>;
+}
+
 // The presenter's controller, laid out like Keynote's presenter display: the current
 // slide, what comes next and your notes on the left, and every slide in the deck on a
 // light table on the right. Click any slide to send the audience there.
@@ -18,8 +34,6 @@ export default function Presenter({ deck, start = 0, where, onEnd }) {
   const [num, setNum] = useState('');
   const [cols, setColsState] = useState(savedCols);
   const setCols = n => { setColsState(n); saveCols(n); };
-  const [started, setStarted] = useState(Date.now);
-  const [now, setNow] = useState(Date.now);
   const [visited, setVisited] = useState(() => new Set([start]));
   const end = useRef(onEnd);
   end.current = onEnd;
@@ -29,13 +43,12 @@ export default function Presenter({ deck, start = 0, where, onEnd }) {
   const steps = buildSteps(slide), moreBuilds = b < steps;
 
   useEffect(() => {
-    const tick = setInterval(() => setNow(Date.now()), 1000);
     const stop = listen(m => {
       if (m.type === 'state') { setAt(m.i); setB(m.b || 0); setVisited(v => new Set(v).add(m.i)); }
       else if (m.type === 'ended') end.current(m.i, true);
     });
     send({ type: 'hello' });
-    return () => { clearInterval(tick); stop(); };
+    return stop;
   }, []);
 
   // The same keys as the slides window, so the clicker works whichever of the two has focus.
@@ -68,7 +81,6 @@ export default function Presenter({ deck, start = 0, where, onEnd }) {
     return () => removeEventListener('keydown', onKey, true);
   }, [num, i, deck]);
 
-  const elapsed = Math.max(0, Math.floor((now - started) / 1000)), clock = new Date(now);
   // The big click targets ignore the click that only brought this window to the front.
   const goto = j => { if (!justFocused()) send({ type: 'goto', i: j }); };
   const nextClick = () => { if (!justFocused()) send({ type: 'step', d: 1 }); };
@@ -77,7 +89,7 @@ export default function Presenter({ deck, start = 0, where, onEnd }) {
     // Keep focus off buttons so Space never double-fires; the size slider still needs its mousedown.
     <div id="pv" onMouseDown={e => { if (e.target.closest('button')) e.preventDefault(); }}>
       <div className="pvBar">
-        <button className="pvTimer" title="Click to reset" onClick={() => setStarted(Date.now())}>{two(Math.floor(elapsed / 60))}:{two(elapsed % 60)}</button>
+        <Timer />
         <span className="pvPos">Slide {i + 1} of {deck.slides.length}{num && ` · Go to ${num}`}</span>
         <span className="pvWhere">{where === 'screen' ? 'Slides are on the other display' : where === 'window' ? 'Slides are in their own window' : ''}</span>
         <ClickerStatus />
@@ -86,7 +98,7 @@ export default function Presenter({ deck, start = 0, where, onEnd }) {
         <button onClick={() => send({ type: 'back' })} title="Return to the slide you jumped from (Backspace)">↩ Back</button>
         <button className="primary" onClick={() => send({ type: 'step', d: 1 })} title="Next (→, Space, Page Down)">Next ›</button>
         <button onClick={() => send({ type: 'black' })} title="Black screen on and off (B or .)">Black</button>
-        <span className="pvClock">{clock.getHours()}:{two(clock.getMinutes())}</span>
+        <Clock />
         <button className="pvEnd" onClick={() => end.current(i)} title="End the show (Esc)">End show</button>
       </div>
 

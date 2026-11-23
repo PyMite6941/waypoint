@@ -64,6 +64,7 @@ button:disabled { opacity: .45; cursor: default; }
 .fx-wipe { --fx: wp-wipe; animation-timing-function: linear; }
 .fx-blur { --fx: wp-blur; }
 .fx-spin { --fx: wp-spin; }
+.fx-custom { animation-fill-mode: both; }   /* --fx and the timing come from the element (custom animations) */
 @keyframes wp-appear { from, to { opacity: 0; } }
 @keyframes wp-fade { from { opacity: 0; } }
 @keyframes wp-rise { from { opacity: 0; translate: 0 60px; } }
@@ -389,3 +390,41 @@ kbd { padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px;
 .dot.off { background: #dc2626; }
 .pvClicker { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; opacity: .8; }
 .pvClicker.warn { opacity: 1; color: #fca5a5; font-weight: 600; }
+
+/* Animation editor */
+.modal .animEditor { gap: 14px; }
+.animTop { display: flex; gap: 16px; align-items: flex-start; }
+.animFields { flex: 1; display: grid; gap: 10px; min-width: 0; }
+.animPreview { display: grid; gap: 6px; justify-items: center; }
+.animStage { position: relative; width: 320px; height: 180px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--ui); }
+.animSlide { position: absolute; left: 0; top: 0; width: 1600px; height: 900px; transform: scale(.2); transform-origin: 0 0; }
+.animSample { position: absolute; left: 500px; top: 330px; width: 600px; height: 240px; display: flex; align-items: center; justify-content: center; border-radius: 24px; background: var(--accent); color: #fff; font: 600 64px/1.1 system-ui, sans-serif; text-align: center; overflow: hidden; }
+.frames { display: grid; gap: 4px; overflow-x: auto; }
+.frow { display: grid; grid-template-columns: 64px repeat(6, minmax(78px, 1fr)) 32px; gap: 4px; align-items: center; min-width: 600px; }
+.frow.head span { font-size: 11px; color: var(--dim); font-weight: 600; }
+.form .frow input { padding: 5px 6px; }
+.libBox summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+.libBox ul { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 4px; }
+.libBox li { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+@media (max-width: 640px) { .animTop { flex-direction: column; align-items: stretch; } .animPreview { justify-self: center; } }
+
+/* Templates */
+.tabs { display: flex; gap: 4px; padding: 10px 18px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 6px 10px; color: var(--dim); white-space: nowrap; }
+.tabs button.on { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+.modal .templates { min-height: 300px; }
+.tplGrid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(236px, 1fr)); gap: 14px; }
+.tplCard { display: grid; gap: 5px; align-content: start; font-size: 13px; }
+.tplThumb { width: 226px; height: 128px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--ui); color: var(--dim); font-size: 12px; }
+.tplCard .row { flex-wrap: wrap; }
+.tplCard .row button { flex: 0 1 auto; }
+.form .small { font-size: 11px; }
+.tplSave { display: grid; gap: 8px; margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+.tplSave legend { font-weight: 600; font-size: 13px; padding: 0 4px; }
+.tplFeed h3 { display: flex; align-items: center; margin: 4px 0 8px; font-size: 14px; }
+
+/* Uninstall */
+.form .check:has(input) { white-space: normal; align-items: flex-start; }
+.form code { overflow-wrap: anywhere; }
+button.primary.danger { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+button.primary.danger:disabled { opacity: .45; }

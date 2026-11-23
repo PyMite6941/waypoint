@@ -71,7 +71,7 @@ export function sniff(bytes) {
     return 'zip';
   }
   if (text.startsWith('<!doctype html') || text.startsWith('<html') || text.includes('<head')) return 'html';
-  if (text.startsWith('{') && text.includes('"slides"')) return 'json';
+  if (text.startsWith('{') && new TextDecoder().decode(bytes.subarray(0, 4e6)).includes('"slides"')) return 'json';   // a Waypoint deck
   return null;
 }
 
@@ -86,7 +86,7 @@ const nameFrom = (disposition, url) => {
 
 const DEV_FETCH = '/__waypoint/fetch';
 // One download: { bytes, type, name } or throws ({ blocked: true } when the browser refused it).
-async function download(url, signal) {
+export async function download(url, signal) {
   if (window.desktop?.get) {
     const r = await window.desktop.get(url);
     if (r.error) throw new Error(r.error);

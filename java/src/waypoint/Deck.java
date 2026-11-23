@@ -112,6 +112,12 @@ final class Deck {
         if (d.get("assets") instanceof Map<?, ?> a)
             a.forEach((k, v) -> { if (v instanceof String src && src.startsWith("data:image/")) assets.put(String.valueOf(k), src); });
 
+        // Custom animations (made in the web or desktop app) play here as a fade; emphasis ones,
+        // which act on an object already on the slide, leave it showing all along.
+        java.util.Set<String> emphasis = new java.util.HashSet<>();
+        if (d.get("anims") instanceof Map<?, ?> an)
+            an.forEach((k, v) -> { if (v instanceof Map<?, ?> m && "emphasis".equals(m.get("kind"))) emphasis.add("custom:" + k); });
+
         List<Slide> slides = new ArrayList<>();
         int n = 0;
         for (Object o : raw) {
@@ -119,7 +125,7 @@ final class Deck {
             List<String> next = new ArrayList<>();
             if (s.get("next") instanceof List<?> l) for (Object x : l) if (x instanceof String id) next.add(id);
             List<El> els = new ArrayList<>();
-            if (s.get("els") instanceof List<?> l) for (Object x : l) if (x instanceof Map<?, ?> e) els.add(el(e));
+            if (s.get("els") instanceof List<?> l) for (Object x : l) if (x instanceof Map<?, ?> e) els.add(el(e, emphasis));
             Trans trans = null;
             if (s.get("trans") instanceof Map<?, ?> t && t.get("fx") instanceof String fx && !fx.equals("none"))
                 trans = new Trans(fx, num(t.get("dur"), 0.6));
@@ -130,9 +136,9 @@ final class Deck {
         return new Deck(str(d.get("title"), "Untitled deck"), THEMES.containsKey(theme) ? theme : "paper", assets, slides);
     }
 
-    private static El el(Map<?, ?> e) {
+    private static El el(Map<?, ?> e, java.util.Set<String> emphasis) {
         Anim anim = null;
-        if (e.get("anim") instanceof Map<?, ?> a && a.get("fx") instanceof String fx && !fx.isEmpty())
+        if (e.get("anim") instanceof Map<?, ?> a && a.get("fx") instanceof String fx && !fx.isEmpty() && !emphasis.contains(fx))
             anim = new Anim(fx, (int) num(a.get("step"), 0), num(a.get("dur"), 0.5), num(a.get("delay"), 0));
         List<Para> rich = null;
         if (e.get("rich") instanceof List<?> ps && !ps.isEmpty()) {

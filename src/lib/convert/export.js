@@ -3,6 +3,7 @@
 //     or upload to Drive). Keeps layout, colours, fonts, notes, links, transitions and builds.
 //   Pictures (.zip of PNGs): every slide exactly as it looks, at 1920 x 1080.
 // PDF is done by printing (see App), the Waypoint format by files.js.
+import { animOf, isCustom } from '../anims.js';
 import { BUILDS, THEME_COLORS, buildSteps } from '../deck.js';
 
 const IN = 120;                        // slide units per inch: 1600 units = 13.333 in (16:9 widescreen)
@@ -113,9 +114,10 @@ function transitionXml(t) {
 }
 
 // PowerPoint's timing tree for entrance effects, one click group per build step.
-function timingXml(slide, idOf) {
+// Custom entrance animations go out as a fade (PowerPoint has no keyframes); emphasis ones are left out.
+function timingXml(slide, idOf, deck) {
   const steps = buildSteps(slide);
-  const animated = slide.els.filter(e => e.anim?.fx && idOf[e.id] && BUILDS[e.anim.fx]);
+  const animated = slide.els.filter(e => e.anim?.fx && idOf[e.id] && (BUILDS[e.anim.fx] || (isCustom(e.anim.fx) && animOf(deck, e.anim.fx)?.kind !== 'emphasis')));
   if (!animated.length) return '';
   let n = 3;
   const tgt = spid => `<p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl>`;
@@ -211,7 +213,7 @@ export async function exportPptx(deck) {
     if (!xml) continue;
     const idOf = {};
     for (const m of xml.matchAll(/<p:cNvPr id="(\d+)" name="([^"]*)"/g)) idOf[m[2]] = m[1];
-    const extra = transitionXml(s.trans) + timingXml(s, idOf);
+    const extra = transitionXml(s.trans) + timingXml(s, idOf, deck);
     if (!extra) continue;
     xml = xml.replace('</p:clrMapOvr></p:sld>', `</p:clrMapOvr>${extra}</p:sld>`);
     zip.file(path, xml);

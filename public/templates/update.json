@@ -1,0 +1,415 @@
+{
+ "v": 1,
+ "title": "Project update",
+ "theme": "ink",
+ "assets": {},
+ "slides": [
+  {
+   "id": "4kxho2b",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "tymf60o",
+     "type": "text",
+     "x": 120,
+     "y": 290,
+     "w": 1360,
+     "h": 150,
+     "text": "Project update",
+     "size": 100,
+     "bold": true,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 0
+     }
+    },
+    {
+     "id": "3gk2rb7",
+     "type": "text",
+     "x": 120,
+     "y": 460,
+     "w": 1360,
+     "h": 70,
+     "text": "Project name · reporting period",
+     "size": 38,
+     "color": "#e9b44c"
+    }
+   ]
+  },
+  {
+   "id": "6m68zvm",
+   "bg": "",
+   "notes": "Green, amber, red. Say why for anything not green.",
+   "next": [],
+   "els": [
+    {
+     "id": "kvygai1",
+     "type": "text",
+     "x": 120,
+     "y": 100,
+     "w": 1360,
+     "h": 110,
+     "text": "Where we are",
+     "size": 68,
+     "bold": true
+    },
+    {
+     "id": "ir8ouw7",
+     "type": "ellipse",
+     "x": 120,
+     "y": 280,
+     "w": 60,
+     "h": 60,
+     "fill": "#22c55e",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 1
+     }
+    },
+    {
+     "id": "tl4dvdk",
+     "type": "text",
+     "x": 220,
+     "y": 270,
+     "w": 1200,
+     "h": 80,
+     "text": "Design: On track",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 1
+     }
+    },
+    {
+     "id": "sxy3kbx",
+     "type": "ellipse",
+     "x": 120,
+     "y": 430,
+     "w": 60,
+     "h": 60,
+     "fill": "#f59e0b",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 2
+     }
+    },
+    {
+     "id": "000jg2x",
+     "type": "text",
+     "x": 220,
+     "y": 420,
+     "w": 1200,
+     "h": 80,
+     "text": "Build: At risk",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 2
+     }
+    },
+    {
+     "id": "d57qmhq",
+     "type": "ellipse",
+     "x": 120,
+     "y": 580,
+     "w": 60,
+     "h": 60,
+     "fill": "#ef4444",
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 3
+     }
+    },
+    {
+     "id": "798k58a",
+     "type": "text",
+     "x": 220,
+     "y": 570,
+     "w": 1200,
+     "h": 80,
+     "text": "Launch: Blocked",
+     "size": 44,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "2p2f8uv",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "1cmahfx",
+     "type": "text",
+     "x": 120,
+     "y": 100,
+     "w": 1360,
+     "h": 110,
+     "text": "Progress",
+     "size": 68,
+     "bold": true
+    },
+    {
+     "id": "jpda8kj",
+     "type": "rect",
+     "x": 120,
+     "y": 360,
+     "w": 1360,
+     "h": 60,
+     "fill": "#2a2c31",
+     "radius": 30
+    },
+    {
+     "id": "rdc1fka",
+     "type": "rect",
+     "x": 120,
+     "y": 360,
+     "w": 900,
+     "h": 60,
+     "fill": "#e9b44c",
+     "radius": 30,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:fill",
+      "step": 0
+     }
+    },
+    {
+     "id": "gbgm02s",
+     "type": "text",
+     "x": 120,
+     "y": 450,
+     "w": 900,
+     "h": 80,
+     "text": "66% done",
+     "size": 44,
+     "bold": true,
+     "color": "#e9b44c"
+    },
+    {
+     "id": "o6fiyga",
+     "type": "text",
+     "x": 120,
+     "y": 560,
+     "w": 1360,
+     "h": 70,
+     "text": "Next milestone and its date",
+     "size": 36
+    }
+   ]
+  },
+  {
+   "id": "66l975e",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "geue0hd",
+     "type": "text",
+     "x": 120,
+     "y": 100,
+     "w": 680,
+     "h": 110,
+     "text": "Risks",
+     "size": 64,
+     "bold": true
+    },
+    {
+     "id": "0ys4be8",
+     "type": "text",
+     "x": 860,
+     "y": 100,
+     "w": 620,
+     "h": 110,
+     "text": "Next steps",
+     "size": 64,
+     "bold": true
+    },
+    {
+     "id": "r5s9e9i",
+     "type": "text",
+     "x": 120,
+     "y": 260,
+     "w": 680,
+     "h": 120,
+     "text": "• A risk and what we are doing about it",
+     "size": 38,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 1
+     }
+    },
+    {
+     "id": "95cfx3d",
+     "type": "text",
+     "x": 120,
+     "y": 390,
+     "w": 680,
+     "h": 120,
+     "text": "• Another risk, its owner",
+     "size": 38,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 2
+     }
+    },
+    {
+     "id": "dcroxew",
+     "type": "text",
+     "x": 860,
+     "y": 260,
+     "w": 620,
+     "h": 120,
+     "text": "→ Decision needed from…",
+     "size": 38,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 3
+     }
+    },
+    {
+     "id": "d6rhfdc",
+     "type": "text",
+     "x": 860,
+     "y": 390,
+     "w": 620,
+     "h": 120,
+     "text": "→ Next demo on…",
+     "size": 38,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:rise",
+      "step": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "1gwaucq",
+   "bg": "",
+   "notes": "",
+   "next": [],
+   "els": [
+    {
+     "id": "1sdjzvs",
+     "type": "text",
+     "x": 120,
+     "y": 330,
+     "w": 1360,
+     "h": 160,
+     "text": "Questions?",
+     "size": 110,
+     "bold": true,
+     "anim": {
+      "dur": 0.6,
+      "fx": "custom:pop",
+      "step": 0
+     }
+    },
+    {
+     "id": "m38mdb4",
+     "type": "text",
+     "x": 120,
+     "y": 510,
+     "w": 1360,
+     "h": 70,
+     "text": "Contact · where the details live",
+     "size": 36,
+     "color": "#e9b44c"
+    }
+   ]
+  }
+ ],
+ "anims": {
+  "fill": {
+   "name": "Fill from left",
+   "kind": "in",
+   "dur": 1.2,
+   "ease": "ease-out",
+   "frames": [
+    {
+     "at": 0,
+     "x": -400,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "rise": {
+   "name": "Rise",
+   "kind": "in",
+   "dur": 0.7,
+   "ease": "ease-out",
+   "frames": [
+    {
+     "at": 0,
+     "y": 60,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "pop": {
+   "name": "Pop",
+   "kind": "in",
+   "dur": 0.5,
+   "ease": "spring",
+   "frames": [
+    {
+     "at": 0,
+     "scale": 0,
+     "opacity": 0
+    },
+    {
+     "at": 100
+    }
+   ]
+  },
+  "dim": {
+   "name": "Dim",
+   "kind": "emphasis",
+   "dur": 0.5,
+   "ease": "ease-out",
+   "frames": [
+    {
+     "at": 0
+    },
+    {
+     "at": 100,
+     "opacity": 0.3
+    }
+   ]
+  }
+ },
+ "template": {
+  "name": "Project update",
+  "description": "Status lights, a progress bar that fills in, risks and next steps.",
+  "author": "Waypoint",
+  "license": "CC0",
+  "tags": [
+   "work",
+   "report"
+  ]
+ }
+}

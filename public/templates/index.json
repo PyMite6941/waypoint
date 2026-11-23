@@ -1,0 +1,67 @@
+{
+ "waypoint": "templates",
+ "v": 1,
+ "name": "Waypoint templates",
+ "templates": [
+  {
+   "id": "pitch",
+   "name": "Pitch: one big idea",
+   "description": "Six slides from the idea to the ask, with builds that land one point at a time.",
+   "author": "Waypoint",
+   "license": "CC0",
+   "tags": [
+    "pitch",
+    "business"
+   ],
+   "file": "pitch.json"
+  },
+  {
+   "id": "lesson",
+   "name": "Lesson with a quick check",
+   "description": "Goals, a key idea and a question that branches to “Yes!” or “Not quite”, then a recap.",
+   "author": "Waypoint",
+   "license": "CC0",
+   "tags": [
+    "education",
+    "branching"
+   ],
+   "file": "lesson.json"
+  },
+  {
+   "id": "workshop",
+   "name": "Workshop: choose your path",
+   "description": "An agenda you can jump around: three parts, each with an activity and a way back.",
+   "author": "Waypoint",
+   "license": "CC0",
+   "tags": [
+    "workshop",
+    "branching"
+   ],
+   "file": "workshop.json"
+  },
+  {
+   "id": "update",
+   "name": "Project update",
+   "description": "Status lights, a progress bar that fills in, risks and next steps.",
+   "author": "Waypoint",
+   "license": "CC0",
+   "tags": [
+    "work",
+    "report"
+   ],
+   "file": "update.json"
+  },
+  {
+   "id": "minimal",
+   "name": "Minimal talk",
+   "description": "Big type, one thought per slide, words that come into focus.",
+   "author": "Waypoint",
+   "license": "CC0",
+   "tags": [
+    "talk",
+    "minimal"
+   ],
+   "file": "minimal.json"
+  }
+ ]
+}

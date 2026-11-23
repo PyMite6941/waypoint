@@ -15,8 +15,21 @@ const hidId = d => `hid:${d.vendorId.toString(16)}:${d.productId.toString(16)}:$
 // what clickers present themselves as.
 const isInput = d => d.collections.some(c => (c.usagePage === 1 && [6, 7].includes(c.usage)) || c.usagePage === 12);
 
+// Reading the list is not free (the desktop app asks the operating system, which takes a few
+// seconds on Windows), so one read is shared by everyone asking at the same time and reused
+// for a short while.
+let cached = null, cachedAt = 0, pending = null;
+const FRESH = 8000;
 /** The devices to choose from: [{ id, name, connected, input }], clickers first. null when it could not be read. */
-export async function listDevices() {
+export function listDevices({ fresh = false } = {}) {
+  if (pending) return pending;
+  if (!fresh && cached && Date.now() - cachedAt < FRESH) return Promise.resolve(cached);
+  pending = readDevices().then(list => { cached = list; cachedAt = Date.now(); return list; }).finally(() => { pending = null; });
+  return pending;
+}
+/** The last list read, to show straight away while a fresh one is read (or undefined). */
+export const lastDevices = () => cached ?? undefined;
+async function readDevices() {
   let list;
   if (deviceSource() === 'desktop') list = await window.desktop.bluetooth.devices();
   else if (deviceSource() === 'hid') {
@@ -52,8 +65,10 @@ export const findIn = (list, chosen) => chosen && list?.find(d => d.id === chose
 /**
  * Calls onChange(connected: true | false | null) for the chosen clicker now and whenever it
  * changes (null: unknown, or no clicker chosen). Returns a function that stops watching.
+ * every: how often to look again in the desktop app (0: only now and when the choice
+ * changes). Checks pause while the page is hidden. Chrome and Edge report changes as they happen.
  */
-export function watchChosen(onChange, every = 20000) {
+export function watchChosen(onChange, every = 0) {
   let stopped = false, last;
   const report = v => { if (!stopped && v !== last) { last = v; onChange(v); } };
   const check = async () => {
@@ -61,13 +76,13 @@ export function watchChosen(onChange, every = 20000) {
     if (!chosen) return report(null);
     try { const list = await listDevices(); report(list ? Boolean(findIn(list, chosen)?.connected) : null); } catch { report(null); }
   };
-  check();
-  const timer = deviceSource() === 'desktop' ? setInterval(check, every) : null;
+  const firstCheck = setTimeout(check, 1500);   // after start-up has settled
+  const timer = every && deviceSource() === 'desktop' ? setInterval(() => { if (!document.hidden) check(); }, every) : null;
   const hid = deviceSource() === 'hid' ? navigator.hid : null;
   hid?.addEventListener('connect', check);
   hid?.addEventListener('disconnect', check);
   const off = onChosenChange(check);
-  return () => { stopped = true; clearInterval(timer); hid?.removeEventListener('connect', check); hid?.removeEventListener('disconnect', check); off(); };
+  return () => { stopped = true; clearTimeout(firstCheck); clearInterval(timer); hid?.removeEventListener('connect', check); hid?.removeEventListener('disconnect', check); off(); };
 }
 
 export const openBluetoothSettings = () => window.desktop?.bluetooth?.openSettings();

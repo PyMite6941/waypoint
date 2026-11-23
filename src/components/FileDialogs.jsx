@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { IMPORT_TYPES } from '../lib/convert/import.js';
-import { importLink } from '../lib/convert/links.js';
 import { pickFiles, readDropped } from '../lib/files.js';
 import { VERSION, checkNow, install } from '../lib/updates.js';
 import { installApp, installState, onInstallChange, platform } from '../lib/install.js';
-import { Modal } from './AiDialogs.jsx';
+import { closeStore } from '../lib/store.js';
+import Modal from './Modal.jsx';
 
 /* ---------- open / import ---------- */
 
@@ -25,6 +25,7 @@ export function ImportDialog({ onFiles, onResult, onClose, busy }) {
   async function fromLink() {
     setError(''); setHint('');
     try {
+      const { importLink } = await import('../lib/convert/links.js');
       const result = await importLink(link, { onStatus: setLoading });
       setLoading('');
       if (result.manual) setHint(`Your browser is not allowed to download it for Waypoint, so it opened in a new tab. When the download finishes, drop the file here (or click Choose file). If the site asks you to sign in, the deck is private. ${result.help}`);
@@ -201,6 +202,94 @@ export function InstallDialog({ onClose }) {
         <span className="grow" />
         {state === 'prompt' && <button className="primary" onClick={async () => { if (await installApp()) onClose(); }}>Install Waypoint</button>}
         <button className={state === 'prompt' ? undefined : 'primary'} onClick={onClose}>{state === 'prompt' ? 'Not now' : 'Done'}</button>
+      </footer>
+    </Modal>
+  );
+}
+
+/* ---------- uninstall ---------- */
+
+// Removes Waypoint. Desktop: runs the system's uninstaller after the app quits (or moves the
+// app to the Trash), optionally deleting its data. Browser: how to remove the installed app,
+// and a button that deletes Waypoint's own data from this browser (only Waypoint's: other
+// sites on the same address keep theirs).
+export async function clearBrowserData() {
+  await closeStore();
+  for (const k of Object.keys(localStorage)) if (k.startsWith('waypoint.')) localStorage.removeItem(k);
+  for (const k of Object.keys(sessionStorage)) if (k.startsWith('waypoint')) sessionStorage.removeItem(k);
+  await Promise.all(['waypoint', 'waypoint-keys'].map(name => new Promise(ok => { const r = indexedDB.deleteDatabase(name); r.onsuccess = r.onerror = r.onblocked = () => ok(); })));
+  if (window.caches) for (const k of await caches.keys()) if (k.startsWith('waypoint')) await caches.delete(k);
+  const here = new URL('./', location.href).href;
+  for (const reg of await navigator.serviceWorker?.getRegistrations?.() || []) if (reg.scope === here) await reg.unregister();
+}
+
+export function UninstallDialog({ onClose }) {
+  const desktop = window.desktop?.uninstall;
+  const [info, setInfo] = useState(null);
+  const [wipe, setWipe] = useState(false);
+  const [sure, setSure] = useState(false);
+  const [error, setError] = useState('');
+  const [done, setDone] = useState('');
+  useEffect(() => { if (desktop) desktop.info().then(setInfo, err => setError(err.message)); }, [desktop]);
+  const os = platform(), state = installState();
+  const data = <>your API keys (.env), the open deck, My templates, My animations and settings</>;
+
+  async function run() {
+    setError('');
+    try {
+      if (desktop) { await desktop.run(wipe); setDone('Waypoint is closing and uninstalling…'); }
+      else { await clearBrowserData(); setDone('Waypoint’s data has been deleted from this browser. Close this tab to finish; opening Waypoint again starts fresh.'); }
+    } catch (err) { setError(err.message || String(err)); }
+  }
+
+  let how;
+  if (desktop && info) {
+    how = {
+      windows: <p>Waypoint closes and the Windows uninstaller removes it, with its Start menu and desktop shortcuts. You can also uninstall it from <b>Settings, Apps, Installed apps</b>.</p>,
+      mac: <p>Waypoint closes and moves itself to the Trash. Empty the Trash to finish, or drag it back out to keep it.</p>,
+      'mac-dmg': <p>Waypoint is running from its disk image, so nothing is installed: quit it and eject the disk image.</p>,
+      appimage: <p>Waypoint closes and deletes its AppImage file.</p>,
+      deb: info.ready
+        ? <p>Waypoint closes and asks for your password to remove the package (the same as <code>{info.command}</code>).</p>
+        : <p>Run <code>{info.command}</code> in a terminal to remove it.</p>,
+      source: <p>Waypoint is running from source: delete the project folder to remove it.</p>,
+    }[info.kind];
+  } else if (!desktop) {
+    const steps = {
+      installed: os === 'mac' || os === 'windows' || os === 'linux' || os === 'chromeos'
+        ? <>In the Waypoint window, open the <b>⋮</b> menu at the top right and choose <b>Uninstall Waypoint</b>. Or in Chrome go to <code>chrome://apps</code> (Edge: <code>edge://apps</code>), right-click Waypoint and choose <b>Remove</b>.</>
+        : <>Remove it the way you remove any app on this device.</>,
+      'safari-mac': <>If you added it to the Dock, open the <b>Applications</b> folder in your home folder, drag Waypoint to the Trash.</>,
+      ios: <>Touch and hold the Waypoint icon on the Home Screen, then choose <b>Remove App</b>.</>,
+    }[state] || <>If you installed Waypoint as an app, open it, use the <b>⋮</b> menu at the top right and choose <b>Uninstall Waypoint</b>. Otherwise there is nothing installed.</>;
+    how = <p>{steps}</p>;
+  }
+  const canRun = desktop ? info?.ready : true;
+
+  return (
+    <Modal title={desktop ? 'Uninstall Waypoint' : 'Remove Waypoint from this browser'} onClose={onClose}>
+      <div className="form">
+        {desktop && !info && !error && <p className="dim">Checking how Waypoint was installed…</p>}
+        {how}
+        {desktop && info?.ready && (
+          <label className="check">
+            <input type="checkbox" checked={wipe} onChange={e => setWipe(e.target.checked)} />
+            Also delete my Waypoint data: {data}
+          </label>
+        )}
+        {desktop && info?.ready && !wipe && <p className="hint">Without this, your data stays on this computer, so reinstalling picks up where you left off.</p>}
+        {desktop && wipe && info?.data?.length > 0 && <p className="hint">Deleted: {info.data.map(d => <code key={d}>{d}</code>).reduce((a, b) => [a, ', ', b])}. Save your deck to a file first if you want to keep it.</p>}
+        {!desktop && <p>Deleting Waypoint’s data removes the open deck, My templates, My animations and settings from this browser, and forgets which .env file holds your API keys (the file itself stays where you saved it, like all your files). Save your deck to a file first if you want to keep it.</p>}
+        {done && <p className="status" role="status">{done}</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+      </div>
+      <footer>
+        {canRun && !done && (
+          <label className="check grow"><input type="checkbox" checked={sure} onChange={e => setSure(e.target.checked)} /> {desktop ? 'Yes, uninstall Waypoint' : 'Yes, delete it'}</label>
+        )}
+        {!(canRun && !done) && <span className="grow" />}
+        <button onClick={onClose}>{done ? 'Close' : 'Cancel'}</button>
+        {canRun && !done && <button className="primary danger" disabled={!sure} onClick={run}>{desktop ? 'Uninstall' : 'Delete Waypoint’s data'}</button>}
       </footer>
     </Modal>
   );

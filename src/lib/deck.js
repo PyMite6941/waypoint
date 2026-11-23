@@ -1,6 +1,6 @@
 // The deck model. No DOM, no React: safe to use anywhere.
 //
-// deck  = { v, title, theme, assets: { id: dataURL }, slides: [slide] }
+// deck  = { v, title, theme, assets: { id: dataURL }, slides: [slide], anims: { id: custom animation } (see anims.js) }
 // slide = { id, bg, notes, next: [slide id], els: [el],
 //           bgImg (asset id), trans: { fx, dur }, name (title for slides without text) }
 // el    = { id, type: text|rect|ellipse|image|line, x, y, w, h,
@@ -13,6 +13,8 @@
 // paragraph = { align, lvl, bullet, runs: [{ t, b, i, u, color, size, font }] }
 //   `text` always holds the plain text too, so anything that ignores `rich` still shows the words.
 // All geometry is in slide units on a 1600 x 900 canvas.
+
+import { cleanAnims } from './anims.js';
 
 export const W = 1600, H = 900;
 export const THEMES = { paper: 'Paper', ink: 'Ink', chalk: 'Chalk', signal: 'Signal' };
@@ -158,6 +160,7 @@ export function cleanDeck(d) {
       ...(s.trans?.fx in TRANSITIONS && s.trans.fx !== 'none' && { trans: { fx: s.trans.fx, dur: +s.trans.dur || 0.6 } }),
       ...(s.name && { name: String(s.name) }),
     })),
+    ...(d.anims && Object.keys(cleanAnims(d.anims)).length && { anims: cleanAnims(d.anims) }),
     // Where it was imported from, so File, Update from link can fetch the latest version.
     ...(typeof d.source?.url === 'string' && /^https:\/\//.test(d.source.url) && { source: { url: d.source.url, service: String(d.source.service || ''), at: +d.source.at || 0 } }),
   };

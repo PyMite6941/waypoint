@@ -30,6 +30,8 @@ contextBridge.exposeInMainWorld('desktop', {
     stop: id => ipcRenderer.invoke('cli:stop', id),
     onProgress: fn => { const h = (e, id, n) => fn(id, n); ipcRenderer.on('cli:progress', h); return () => ipcRenderer.removeListener('cli:progress', h); },
   },
+  // Uninstall Waypoint (see main.cjs): what it would do, and doing it.
+  uninstall: { info: () => ipcRenderer.invoke('app:uninstallInfo'), run: wipe => ipcRenderer.invoke('app:uninstall', { wipe }) },
   update: {
     state: () => ipcRenderer.invoke('update:state'),
     check: () => ipcRenderer.invoke('update:check'),

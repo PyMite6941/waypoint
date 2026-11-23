@@ -1,23 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
-import { chooseDevice, chosenDevice, deviceSource, findDevice, findIn, listDevices, onChosenChange, openBluetoothSettings, watchChosen } from '../lib/clickerDevices.js';
+import { chooseDevice, chosenDevice, deviceSource, findDevice, findIn, lastDevices, listDevices, onChosenChange, openBluetoothSettings, watchChosen } from '../lib/clickerDevices.js';
 
 // The toolbar's Clicker menu: pick the Bluetooth clicker you present with, see whether it is
 // connected, pair one, or teach Waypoint its keys.
 export default function ClickerMenu({ onSetup }) {
   const menu = useRef(null);
-  const [list, setList] = useState(undefined);   // undefined: looking; null: cannot list
+  const [list, setList] = useState(lastDevices);   // undefined: looking; null: cannot list
+  const [looking, setLooking] = useState(false);
   const [chosen, setChosen] = useState(chosenDevice);
   const [connected, setConnected] = useState(null);
   const [error, setError] = useState('');
   const source = deviceSource();
 
   useEffect(() => onChosenChange(() => setChosen(chosenDevice())), []);
-  useEffect(() => watchChosen(setConnected, 30000), []);
+  useEffect(() => watchChosen(setConnected), []);   // once, then whenever the menu is opened
 
   async function refresh() {
     setError('');
-    setList(undefined);
-    try { setList(await listDevices()); } catch (err) { setList(null); setError(err.message); }
+    setList(lastDevices());   // the last list at once; the fresh one replaces it
+    setLooking(true);
+    try {
+      const found = await listDevices({ fresh: true });
+      setList(found);
+      if (chosenDevice()) setConnected(found ? Boolean(findIn(found, chosenDevice())?.connected) : null);
+    } catch (err) { setList(null); setError(err.message); }
+    finally { setLooking(false); }
   }
   async function find() {
     setError('');
@@ -80,7 +87,7 @@ export default function ClickerMenu({ onSetup }) {
         <hr />
         {source === 'hid' && <button onClick={find}>Find a clicker…</button>}
         {source === 'desktop' && <button onClick={openBluetoothSettings}>Bluetooth settings…</button>}
-        {source && <button onClick={refresh}>Refresh</button>}
+        {source && <button onClick={refresh} disabled={looking}>{looking && list ? 'Checking…' : 'Refresh'}</button>}
         <button onClick={() => { menu.current?.removeAttribute('open'); onSetup(); }}>Teach clicker keys…</button>
       </div>
     </details>
@@ -92,7 +99,7 @@ export function ClickerStatus() {
   const [chosen, setChosen] = useState(chosenDevice);
   const [connected, setConnected] = useState(null);
   useEffect(() => onChosenChange(() => setChosen(chosenDevice())), []);
-  useEffect(() => watchChosen(setConnected, 15000), []);
+  useEffect(() => watchChosen(setConnected, 20000), []);   // keep an eye on it during the talk
   if (!chosen) return null;
   return (
     <span className={`pvClicker${connected === false ? ' warn' : ''}`} role={connected === false ? 'alert' : undefined}

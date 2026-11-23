@@ -81,6 +81,30 @@ const linkFetch = {
   },
 };
 
+// Content Security Policy for the built app (web and desktop). Scripts only come from the app
+// itself, so text in an imported deck can never run as code; nothing can embed plugins or
+// change where relative links point. Network requests stay open to https (AI providers and
+// presentation links people paste) and to AI servers running on this computer.
+// Not used by the dev server, whose hot reload needs inline scripts.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "worker-src 'self' blob:",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob:",
+  "media-src 'self' data: blob:",
+  "connect-src 'self' data: blob: https: http://localhost:* http://127.0.0.1:*",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
+const csp = {
+  name: 'waypoint-csp',
+  apply: 'build',
+  transformIndexHtml: () => [{ tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: CSP }, injectTo: 'head-prepend' }],
+};
+
 // Relative base so the same build works on GitHub Pages and inside the desktop app.
 // Each build writes version.json; open web pages poll it to notice a newer deploy.
 export default defineConfig({
@@ -90,6 +114,7 @@ export default defineConfig({
     react(),
     envFileApi,
     linkFetch,
+    csp,
     {
       name: 'waypoint-version',
       generateBundle() { this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ version, build }) }); },

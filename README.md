@@ -45,6 +45,18 @@ chmod +x Waypoint.AppImage
 
 The installers are not code-signed yet. If Windows shows a SmartScreen prompt, choose More info, then Run anyway; on macOS, right-click the app and choose Open the first time.
 
+### Uninstall
+
+In the app: **File, Uninstall Waypoint…**. It quits and removes itself, and can also delete your data (API keys, saved deck, templates, animations, settings). Without that box ticked your data stays, so reinstalling picks up where you left off. Or by hand:
+
+| System | Remove the app | Its data (optional) |
+| --- | --- | --- |
+| Windows | Settings, Apps, Installed apps, Waypoint, Uninstall | `%APPDATA%\Waypoint`, `%LOCALAPPDATA%\waypoint-updater` |
+| macOS | Drag Waypoint from Applications to the Trash | `~/Library/Application Support/Waypoint`, `~/Library/Caches/waypoint-updater` |
+| Debian, Ubuntu | `sudo apt remove waypoint` | `~/.config/Waypoint`, `~/.cache/waypoint-updater` |
+| AppImage | Delete the `.AppImage` file | `~/.config/Waypoint` |
+| Browser | Installed app: its ⋮ menu, Uninstall. Data: **File, Remove from this browser…** | Only Waypoint's own storage is cleared |
+
 ## What it does
 
 - Free-form slides: text, boxes, circles and images you drag and resize, with alignment guides and four themes
@@ -59,6 +71,8 @@ The installers are not code-signed yet. If Windows shows a SmartScreen prompt, c
 - **Generate slides with AI** (edit mode, Ctrl+G) using your own provider: an Anthropic, OpenAI, Gemini, OpenRouter, Groq, Mistral, DeepSeek or xAI key, any OpenAI-compatible address, a local model (Ollama, LM Studio), a ChatGPT plan or Google account through the Codex CLI or Gemini CLI (desktop app), or copy and paste with any chat app, which opens ChatGPT, Claude, Gemini or Copilot with the prompt copied (the only way to use Claude Pro or Max, since Anthropic does not let other apps use that login). Keys are kept in a `.env` file; a provider can have several, and Waypoint counts each key's monthly tokens and switches automatically when one is rate limited, out of credit or over a limit you set. Set it up in File, AI settings. You review the slides before they go in, and one Undo takes them out
 - Slide layouts on **+ Slide** (title, bullets, section, two columns, quote, blank) and a shortcuts sheet on **?**
 - Slide transitions (fade, push, cover, wipe, zoom, flip, cube, morph) and click-by-click build animations, the same on web, desktop and Java
+- Custom animations: a keyframe editor (move, scale, turn, fade, blur, with easing) for entrance and emphasis effects; they are saved in the deck, and in My animations for reuse in other decks, with export and import
+- Templates: File, New from template opens a gallery read from the website (with an offline copy), your own saved templates, any Google Slides or PowerPoint link, and other galleries anyone can publish as a JSON file
 - Import PowerPoint (.pptx and 97-2003 .ppt), Keynote, OpenDocument (.odp, LibreOffice), Google Slides (link or .pptx), PDF, Markdown and pictures, or open a presentation from a link (Google Slides, or a file on OneDrive, SharePoint, Google Drive or Dropbox): it is downloaded, its type is read from its bytes, and File, Update from link fetches the latest version later, keeping layout and colours; export to PowerPoint, Google Slides, PDF, PNG or `.waypoint.json`
 - Installs as an app with its own taskbar, Dock or Start menu icon, either from the browser (Chrome/Edge install, Safari's Add to Dock) or as the desktop app; File, Install as an app explains pinning for your system. Installed, it opens presentations you double-click or drop on its icon
 - Updates itself: the web version offers a reload when a new build is live, the desktop app installs new releases from GitHub
@@ -112,6 +126,8 @@ One React app, two shells. The web build is what GitHub Pages serves. The deskto
 | `src/style.css` | Editor chrome, slide themes, show, presenter view, print |
 | `desktop/` | Electron window, `app://` file server, the `window.desktop` file bridge |
 | `public/docs/` | User guide, published alongside the app |
+| `public/templates/` | The template gallery (`index.json` plus decks), also bundled into the app |
+| `src/lib/anims.js`, `src/lib/templates.js` | Custom animations and templates |
 | `public/sw.js`, `src/lib/offline.js` | Offline support and install for the web version |
 | `public/icon.svg`, `build/icon.png` | App icon (web and installers) |
 | `.github/workflows/pages.yml` | Builds and deploys to GitHub Pages on every push to `main` |
@@ -127,6 +143,8 @@ Things worth knowing before changing it:
 - The desktop app can only write to paths the user chose in a dialog during that session.
 - AI keys live in a `.env` file (copy `.env.example`; git ignores `.env`): in the desktop app's settings folder (`env:read`/`env:write` IPC), in the project folder under `npm run dev` (the `/__waypoint/env` endpoint, localhost and same-origin only), or on the web a file the user picks (File System Access) or opens each session. `envDir: false` keeps Vite from loading `.env` into the bundle. Keys go only to the provider they belong to; per-key token counts and limits stay in localStorage. Keys saved in localStorage by older versions are moved into `.env` on first run.
 - Subscriptions: the desktop app can run the user's own signed-in Codex CLI (`codex exec`, read-only sandbox, reply via `-o`) or Gemini CLI (`-p … --output-format json`) through `cli:run`, with fixed arguments, the prompt on stdin, an empty temp folder, a 10-minute timeout and Stop. There is no Claude subscription bridge, because Anthropic's terms do not allow third-party apps to use Pro/Max logins. In the desktop app, AI requests go through the main process (`ai:fetch`, https or localhost only) so provider CORS rules do not apply. The Anthropic SDK is loaded on first use, so it is not in the main bundle.
+- Security: the built app (web and desktop) carries a Content Security Policy (`vite.config.js`): scripts only from the app itself, no plugins, no `<base>` changes, pictures only from the app or data/blob URLs, network open to https and localhost for AI providers and presentation links. The dev server skips it because hot reload needs inline scripts. PDFs are parsed with pdf.js eval turned off. In the desktop app every IPC handler checks the request comes from Waypoint's own page, windows cannot navigate away or embed webviews, and only http(s)/mailto links reach the OS.
+- Performance: edits copy only what they change (`immer` in `state.js`), so undo history shares unchanged slides, and slide views redraw only when their own slide, the theme, the pictures or the slide list change. Pictures are saved under their own IndexedDB key and rewritten only when they change. The AI dialogs and the link importer load on first use.
 
 ## License
 
