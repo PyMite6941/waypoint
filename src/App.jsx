@@ -10,14 +10,15 @@ import Presenter from './components/Presenter.jsx';
 import Show from './components/Show.jsx';
 import SlideView, { Thumb } from './components/SlideView.jsx';
 import Stage from './components/Stage.jsx';
-import { H, LAYOUTS, PLACEHOLDER, THEMES, W, buildSteps, layoutSlide, newDeck, newSlide, textEl, uid } from './lib/deck.js';
+import { H, LAYOUTS, PLACEHOLDER, THEMES, W, layoutSlide, newDeck, newSlide, textEl, uid } from './lib/deck.js';
 import { isDeckFile } from './lib/convert/import.js';
 import { fileName, forgetPath, openDeck, pickImage, readDropped, readImage, saveDeck, saveFile } from './lib/files.js';
 import { loadFonts } from './lib/fonts.js';
 import { subscribe } from './lib/updates.js';
 import { closeAudience, openAudience } from './lib/present.js';
 import { initState, reducer } from './lib/state.js';
-import { library, saveToLibrary } from './lib/anims.js';
+import { library, saveToLibrary, transitionLibrary } from './lib/anims.js';
+import { copyEls, geomOf, longestAt, retarget, slideSteps } from './lib/effects.js';
 import { listen, send, storeDeck } from './lib/store.js';
 
 // The AI dialogs (and the key store behind them) load the first time one is opened.
@@ -25,6 +26,7 @@ const AiGenerate = lazy(() => import('./components/AiDialogs.jsx').then(m => ({ 
 const AiSettings = lazy(() => import('./components/AiDialogs.jsx').then(m => ({ default: m.AiSettings })));
 const AnimEditor = lazy(() => import('./components/AnimEditor.jsx'));
 const TemplatesDialog = lazy(() => import('./components/TemplatesDialog.jsx'));
+const TransitionEditor = lazy(() => import('./components/TransitionEditor.jsx'));
 const firstLine = text => String(text || '').trim().split('\n')[0].slice(0, 40);
 
 const typing = e => e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
@@ -68,14 +70,16 @@ export default function App({ initial }) {
   const [cols, setColsState] = useState(savedCols);
   const setCols = n => { setColsState(n); saveCols(n); };
   const [ai, setAi] = useState(false);              // the Generate dialog is open
-  const [animEdit, setAnimEdit] = useState(null);   // the custom animation editor is open: { start }
+  const [animEdit, setAnimEdit] = useState(null);   // the custom animation editor is open: { start, target }
+  const [transEdit, setTransEdit] = useState(null); // the custom transition editor is open: { start }
+  const [recording, setRecording] = useState(null); // dragging an object to where a Move takes it: { id, slide, at, orig }
   const [aiSettings, setAiSettings] = useState(null); // the AI settings dialog is open: called with the result
   const [help, setHelp] = useState(false);
   const [dialog, setDialog] = useState(null);       // 'import' | 'export' | 'about'
   const [busy, setBusy] = useState('');             // what a long import or export is doing
   const [update, setUpdate] = useState(null);       // newest update state (see lib/updates.js)
   const [updateLater, setUpdateLater] = useState(false);
-  const [preview, setPreview] = useState(null);     // { step, n }: a build step playing on the stage
+  const [preview, setPreview] = useState(null);     // { ev, build, taps, n }: a moment of the slide playing on the stage
   const [rendering, setRendering] = useState(false); // slides drawn off screen for picture export
   const [editing, setEditing] = useState(null);   // id of the text element being typed in
   const [unsaved, setUnsaved] = useState(false);
@@ -102,7 +106,13 @@ export default function App({ initial }) {
     }
   }, `${key}:${sel}`);
   const setSlide = (key, value) => onSlide(sl => { if (value === undefined) delete sl[key]; else sl[key] = value; }, `${key}:${slide.id}`);
-  const addEl = made => onSlide((sl, d) => { sl.els.push(made); d.sel = made.id; });
+  // A pasted object keeps its triggers only where the trigger object is on this slide.
+  const addEl = made => onSlide((sl, d) => {
+    sl.els.push(made);
+    const e = sl.els.at(-1);
+    retarget([e], id => (sl.els.some(x => x.id === id && x !== e) || id === e.id ? id : undefined));
+    d.sel = made.id;
+  });
   const insertSlide = made => change(d => { d.deck.slides.splice(d.cur + 1, 0, made); d.cur += 1; d.sel = null; });
 
   function startEdit(id) {
@@ -129,25 +139,64 @@ export default function App({ initial }) {
     change(d => { d.deck.assets[asset] = img.src; d.deck.slides[d.cur].els.push(made); d.sel = made.id; });
   }
 
-  // Puts custom animation `id` on the selected object, keeping its build step if it had one.
-  const putAnim = (d, id, anim) => {
+  // Puts custom animation `id` on the selected object: on its entrance (`at` 'entrance'),
+  // or on action number `at` of el.acts. A new entrance plays on the next free click.
+  const putAnim = (d, id, anim, at = 'entrance') => {
     const sl = d.deck.slides[d.cur], e = sl.els.find(x => x.id === d.sel);
     if (!e) return;
-    const others = buildSteps({ els: sl.els.filter(x => x !== e) });
-    e.anim = { ...e.anim, fx: `custom:${id}`, step: e.anim?.fx ? e.anim.step || 0 : Math.max(1, others + 1), dur: anim.dur };
+    if (at === 'entrance') {
+      const others = slideSteps({ els: sl.els.filter(x => x !== e) });
+      e.anim = { ...e.anim, fx: `custom:${id}`, step: e.anim?.fx ? e.anim.step || 0 : Math.max(1, others + 1), dur: anim.dur };
+    } else if (e.acts?.[at]) Object.assign(e.acts[at], { fx: `custom:${id}`, dur: anim.dur });
+  };
+  const putTransition = (d, id, t) => { d.deck.slides[d.cur].trans = { fx: `custom:${id}`, dur: t.dur }; };
+  // Ends "set a Move by dragging": keep where the object was dragged to as the Move's end (or not), put it back.
+  const endRecording = keep => {
+    const r = recording;
+    setRecording(null);
+    if (!r) return;
+    change(d => {
+      const e = d.deck.slides.find(s => s.id === r.slide)?.els.find(x => x.id === r.id);
+      if (!e) return;
+      const act = e.acts?.[r.at];
+      if (keep && act?.kind === 'move') act.to = geomOf(e);
+      Object.assign(e, r.orig);
+      if (!r.orig.rot) delete e.rot;
+    });
   };
   const actions = {
     // Custom animations: make or change one, or bring one in from My animations.
-    editAnim(id) { setAnimEdit({ start: id && deck.anims?.[id] ? { id, anim: deck.anims[id] } : null }); },
+    // `target`: { at: 'entrance' | index of the action, kind } where it goes.
+    editAnim(id, target = { at: 'entrance', kind: 'in' }) { setAnimEdit({ start: id && deck.anims?.[id] ? { id, anim: deck.anims[id] } : null, target }); },
     saveAnim(id, anim, { library: keep }) {
       if (keep) saveToLibrary(id, anim);
-      change(d => { d.deck.anims = { ...d.deck.anims, [id]: anim }; putAnim(d, id, anim); });
+      const at = animEdit?.target?.at;
+      change(d => { d.deck.anims = { ...d.deck.anims, [id]: anim }; putAnim(d, id, anim, at); });
       setAnimEdit(null);
     },
-    useAnim(id) {
+    useAnim(id, at = 'entrance') {
       const anim = library()[id];
-      if (anim) change(d => { d.deck.anims = { ...d.deck.anims, [id]: anim }; putAnim(d, id, anim); });
+      if (anim) change(d => { d.deck.anims = { ...d.deck.anims, [id]: anim }; putAnim(d, id, anim, at); });
     },
+    // Custom transitions, the same way, on the current slide.
+    editTransition(id) { setTransEdit({ start: id && deck.transitions?.[id] ? { id, t: deck.transitions[id] } : null }); },
+    saveTransition(id, t, { library: keep }) {
+      if (keep) transitionLibrary.save(id, t);
+      change(d => { d.deck.transitions = { ...d.deck.transitions, [id]: t }; putTransition(d, id, t); });
+      setTransEdit(null);
+    },
+    useTransition(id) {
+      const t = transitionLibrary.read()[id];
+      if (t) change(d => { d.deck.transitions = { ...d.deck.transitions, [id]: t }; putTransition(d, id, t); });
+    },
+    // Set where Move action `at` of the selected object goes by dragging the object there.
+    recordMove(at) {
+      if (!el?.acts?.[at] || recording) return;
+      const orig = geomOf(el), to = el.acts[at].to || orig;
+      setRecording({ id: el.id, slide: slide.id, at, orig });
+      onSlide(sl => Object.assign(sl.els.find(x => x.id === el.id), { x: to.x, y: to.y, w: to.w, h: to.h, rot: to.rot || 0 }));
+    },
+    endRecording,
     text() { const made = textEl('Text', 500, 400, 600, 70, 44); addEl(made); startEdit(made.id); },
     rect() { addEl({ id: uid(), type: 'rect', x: 600, y: 300, w: 400, h: 300 }); },
     ellipse() { addEl({ id: uid(), type: 'ellipse', x: 650, y: 300, w: 300, h: 300 }); },
@@ -179,11 +228,12 @@ export default function App({ initial }) {
     },
     transitionAll(t) { change(d => { for (const sl of d.deck.slides) { if (t) sl.trans = { ...t }; else delete sl.trans; } }); setNotice('Every slide now uses this transition.'); },
     preview() { setShow({ at: cur, fullscreen: false, enter: true }); },
-    previewBuild(step) {
-      const n = Date.now();
-      setPreview({ step, n });
-      const longest = Math.max(0.5, ...slide.els.filter(e => e.anim?.fx && (e.anim.step || 0) === step).map(e => (e.anim.dur || 0.5) + (e.anim.delay || 0)));
-      setTimeout(() => setPreview(p => (p?.n === n ? null : p)), longest * 1000 + 700);
+    // Play one moment of the slide on the stage: build step `ev` (a number) or a trigger's click ({ on, step }).
+    previewBuild(ev) {
+      if (recording) return;
+      const n = Date.now(), e = typeof ev === 'number' ? { on: null, step: ev } : ev;
+      setPreview(e.on ? { ev: e, build: slideSteps(slide), taps: { [e.on]: e.step }, n } : { ev: e, build: e.step, taps: {}, n });
+      setTimeout(() => setPreview(p => (p?.n === n ? null : p)), longestAt(deck, slide, e) * 1000 + 700);
     },
     // AI slides go in as one change, so a single Undo takes them all out.
     insertSlides(made, mode, title) {
@@ -193,7 +243,7 @@ export default function App({ initial }) {
         d.sel = null;
       });
     },
-    dupSlide() { const copy = structuredClone(slide); insertSlide({ ...copy, id: uid(), els: copy.els.map(e => ({ ...e, id: uid() })) }); },
+    dupSlide() { insertSlide({ ...structuredClone(slide), id: uid(), els: copyEls(slide.els, uid) }); },
     delSlide() {
       const blank = newSlide();
       change(d => { d.deck.slides.splice(d.cur, 1); if (!d.deck.slides.length) d.deck.slides.push(blank); d.sel = null; });
@@ -233,6 +283,7 @@ export default function App({ initial }) {
       change(d => {
         d.deck.assets = { ...d.deck.assets, ...made.assets };
         if (made.anims) d.deck.anims = { ...d.deck.anims, ...made.anims };   // custom animations come along
+        if (made.transitions) d.deck.transitions = { ...d.deck.transitions, ...made.transitions };
         if (mode === 'add') { d.deck.slides.splice(d.cur + 1, 0, ...made.slides); d.cur += 1; }
         else {
           Object.assign(d.deck, { title: made.title, theme: made.theme, slides: made.slides });
@@ -492,6 +543,13 @@ export default function App({ initial }) {
           </aside>
 
           <section id="center">
+            {recording && (
+              <div className="recordBar" role="status">
+                <span>Drag and resize the object to where it should move to.</span>
+                <button className="primary" onClick={() => endRecording(true)}>Done</button>
+                <button onClick={() => endRecording(false)}>Cancel</button>
+              </div>
+            )}
             <Stage
               deck={deck} slide={slide} sel={sel} editing={editing} preview={preview}
               onSelect={id => dispatch({ type: 'view', sel: id })}
@@ -524,7 +582,8 @@ export default function App({ initial }) {
           onInsert={actions.insertSlides}
         />
       )}
-      {animEdit && <AnimEditor start={animEdit.start} sample={el ? (el.type === 'text' && firstLine(el.text)) || 'Your object' : ''} onSave={actions.saveAnim} onClose={() => setAnimEdit(null)} />}
+      {transEdit && <TransitionEditor start={transEdit.start} deck={deck} a={deck.slides[cur - 1] || slide} b={slide} onSave={actions.saveTransition} onClose={() => setTransEdit(null)} />}
+      {animEdit && <AnimEditor start={animEdit.start} kind={animEdit.target?.kind} sample={el ? (el.type === 'text' && firstLine(el.text)) || 'Your object' : ''} onSave={actions.saveAnim} onClose={() => setAnimEdit(null)} />}
       {aiSettings && <AiSettings onClose={s => { const then = aiSettings; setAiSettings(null); then(s); }} />}
       </Suspense>
       {help && (

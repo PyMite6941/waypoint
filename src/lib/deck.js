@@ -5,7 +5,8 @@
 //           bgImg (asset id), trans: { fx, dur }, name (title for slides without text) }
 // el    = { id, type: text|rect|ellipse|image|line, x, y, w, h,
 //           text, size, bold, align, color, fill, src (asset id), link (slide id),
-//           anim: { fx, step, dur, delay }  build: step 0 plays with the slide, 1.. on each click
+//           anim: { fx, step, dur, delay, on }  entrance: step 0 plays with the slide, 1.. on each click
+//           acts: [action]  later emphasis, exits, moves (see effects.js); on: a trigger object id
 //           optional, mostly from imported files:
 //           font, italic, underline, valign (top|middle|bottom), lh (line height), pad [t, r, b, l], nowrap,
 //           rot (degrees), opacity, line (outline colour), lineW, radius, geom (see GEOMS),
@@ -14,7 +15,8 @@
 //   `text` always holds the plain text too, so anything that ignores `rich` still shows the words.
 // All geometry is in slide units on a 1600 x 900 canvas.
 
-import { cleanAnims } from './anims.js';
+import { cleanAnims, cleanTransitions, isCustom } from './anims.js';
+import { IN, cleanActs, slideSteps } from './effects.js';
 
 export const W = 1600, H = 900;
 export const THEMES = { paper: 'Paper', ink: 'Ink', chalk: 'Chalk', signal: 'Signal' };
@@ -28,12 +30,9 @@ export const THEME_COLORS = {
 
 // Slide transitions and build (entrance) effects. Shared by the show, the editor and the exporters.
 export const TRANSITIONS = { none: 'None', fade: 'Fade', push: 'Push', cover: 'Cover', wipe: 'Wipe', zoom: 'Zoom', flip: 'Flip', cube: 'Cube', morph: 'Morph' };
-export const BUILDS = {
-  appear: 'Appear', fade: 'Fade in', rise: 'Rise', 'fly-left': 'Fly in from left', 'fly-right': 'Fly in from right',
-  'fly-up': 'Fly in from bottom', drop: 'Drop in', zoom: 'Zoom', pop: 'Pop', wipe: 'Wipe', blur: 'Focus', spin: 'Spin',
-};
-// How many clicks of builds a slide has before Next moves on.
-export const buildSteps = slide => slide.els.reduce((n, e) => Math.max(n, e.anim?.fx ? e.anim.step || 0 : 0), 0);
+export const BUILDS = IN;
+// How many clicks of builds (entrances, exits, moves…) a slide has before Next moves on.
+export const buildSteps = slideSteps;
 
 // Outline shapes beyond rectangles and ellipses, as polygons in fractions of the box.
 export const GEOMS = {
@@ -143,10 +142,22 @@ export function demoDeck() {
   return { v: 1, title: 'Welcome to Waypoint', theme: 'paper', assets: {}, slides: [a, b, c, d] };
 }
 
+// An object's effects, checked: triggers are ids, actions are known kinds with numbers.
+function cleanEffects(e) {
+  if (!e.anim && !e.acts) return e;
+  const out = { ...e }, acts = cleanActs(e.acts);
+  if (acts) out.acts = acts; else delete out.acts;
+  if (out.anim && typeof out.anim === 'object') {
+    out.anim = { ...out.anim };
+    if (typeof out.anim.on !== 'string' || !out.anim.on) delete out.anim.on; else out.anim.step = Math.max(1, +out.anim.step || 1);
+  } else delete out.anim;
+  return out;
+}
+
 // Accept a deck from disk or storage: fill gaps and drop anything that is not ours.
 export function cleanDeck(d) {
   if (!d || !Array.isArray(d.slides) || !d.slides.length) throw new Error('Not a Waypoint deck');
-  const assets = {};
+  const assets = {}, transitions = cleanTransitions(d.transitions);
   for (const [id, src] of Object.entries(d.assets || {})) if (typeof src === 'string' && src.startsWith('data:image/')) assets[id] = src;
   return {
     v: 1,
@@ -155,12 +166,13 @@ export function cleanDeck(d) {
     assets,
     slides: d.slides.map(s => ({
       id: s.id || uid(), bg: typeof s.bg === 'string' ? s.bg : '', notes: String(s.notes || ''), next: Array.isArray(s.next) ? s.next : [],
-      els: Array.isArray(s.els) ? s.els.filter(e => e && typeof e === 'object' && e.type) : [],
+      els: Array.isArray(s.els) ? s.els.filter(e => e && typeof e === 'object' && e.type).map(cleanEffects) : [],
       ...(s.bgImg in assets && { bgImg: s.bgImg }),
-      ...(s.trans?.fx in TRANSITIONS && s.trans.fx !== 'none' && { trans: { fx: s.trans.fx, dur: +s.trans.dur || 0.6 } }),
+      ...((s.trans?.fx in TRANSITIONS || (isCustom(s.trans?.fx) && transitions[s.trans.fx.slice(7)])) && s.trans.fx !== 'none' && { trans: { fx: s.trans.fx, dur: Math.min(30, +s.trans.dur || 0.6) } }),
       ...(s.name && { name: String(s.name) }),
     })),
     ...(d.anims && Object.keys(cleanAnims(d.anims)).length && { anims: cleanAnims(d.anims) }),
+    ...(Object.keys(transitions).length && { transitions }),
     // Where it was imported from, so File, Update from link can fetch the latest version.
     ...(typeof d.source?.url === 'string' && /^https:\/\//.test(d.source.url) && { source: { url: d.source.url, service: String(d.source.service || ''), at: +d.source.at || 0 } }),
   };

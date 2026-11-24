@@ -14,7 +14,8 @@ function snap(pos, size, lines) {
 
 // The editable slide: click to select, drag to move, drag a corner to resize,
 // double-click text to edit.
-// `preview` ({ step, n }) plays one build step in place: later builds hide, that step's effects run.
+// `preview` ({ ev, build, taps, n }) plays one moment in place: a build step or a trigger's click
+// (see effects.js); objects show as they are at that moment and its effects run.
 export default function Stage({ deck, slide, sel, editing, preview, onSelect, onEdit, onEditDone, onMove, onDropImage }) {
   const [live, setLive] = useState(null);     // rectangle of the element being dragged
   const [guides, setGuides] = useState(null); // alignment lines shown while it snaps: { x, y }
@@ -83,7 +84,7 @@ export default function Stage({ deck, slide, sel, editing, preview, onSelect, on
       <SlideView
         key={preview ? `p${preview.n}` : 'edit'} deck={deck} slide={slide} sel={preview ? null : sel} live={live} guides={guides}
         editing={editing} onEditDone={onEditDone} badges={!preview}
-        build={preview ? preview.step : undefined} fx={preview ? preview.step : null}
+        build={preview ? preview.build : undefined} taps={preview?.taps} fx={preview ? preview.ev : null} fxKey={preview?.n}
       />
     </Fit>
   );

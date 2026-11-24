@@ -65,7 +65,54 @@ button:disabled { opacity: .45; cursor: default; }
 .fx-blur { --fx: wp-blur; }
 .fx-spin { --fx: wp-spin; }
 .fx-custom { animation-fill-mode: both; }   /* --fx and the timing come from the element (custom animations) */
-@keyframes wp-appear { from, to { opacity: 0; } }
+.fx-appear { animation-timing-function: step-end; }
+@keyframes wp-appear { from { opacity: 0; } to { opacity: 1; } }
+/* Exits end hidden (the object stays hidden afterwards); emphasis ends as it started. */
+.fx.leaving { pointer-events: none; animation-timing-function: ease-in; }
+.fx-out-fade { --fx: wp-out-fade; }
+.fx-out-vanish { --fx: wp-out-vanish; }
+.fx-out-sink { --fx: wp-out-sink; }
+.fx-out-left { --fx: wp-out-left; }
+.fx-out-right { --fx: wp-out-right; }
+.fx-out-down { --fx: wp-out-down; }
+.fx-out-up { --fx: wp-out-up; }
+.fx-out-zoom { --fx: wp-out-zoom; }
+.fx-out-blur { --fx: wp-out-blur; }
+.fx-out-spin { --fx: wp-out-spin; }
+.fx-out-wipe { --fx: wp-out-wipe; animation-timing-function: linear; }
+@keyframes wp-out-fade { to { opacity: 0; } }
+@keyframes wp-out-vanish { from, to { opacity: 0; } }
+@keyframes wp-out-sink { to { opacity: 0; translate: 0 60px; } }
+@keyframes wp-out-left { to { translate: -1800px 0; } }
+@keyframes wp-out-right { to { translate: 1800px 0; } }
+@keyframes wp-out-down { to { translate: 0 1000px; } }
+@keyframes wp-out-up { to { translate: 0 -1000px; } }
+@keyframes wp-out-zoom { to { opacity: 0; scale: .3; } }
+@keyframes wp-out-blur { to { opacity: 0; filter: blur(24px); scale: 1.08; } }
+@keyframes wp-out-spin { to { opacity: 0; rotate: 360deg; scale: .2; } }
+@keyframes wp-out-wipe { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+.fx-em-pulse { --fx: wp-em-pulse; animation-timing-function: ease-in-out; }
+.fx-em-shake { --fx: wp-em-shake; animation-timing-function: linear; }
+.fx-em-wiggle { --fx: wp-em-wiggle; animation-timing-function: ease-in-out; }
+.fx-em-bounce { --fx: wp-em-bounce; animation-timing-function: ease-in-out; }
+.fx-em-spin { --fx: wp-em-spin; animation-timing-function: ease-in-out; }
+.fx-em-flash { --fx: wp-em-flash; animation-timing-function: linear; }
+.fx-em-jelly { --fx: wp-em-jelly; animation-timing-function: ease-in-out; }
+.fx-em-glow { --fx: wp-em-glow; animation-timing-function: ease-in-out; }
+@keyframes wp-em-pulse { 50% { scale: 1.15; } }
+@keyframes wp-em-shake { 20% { translate: -24px 0; } 40% { translate: 24px 0; } 60% { translate: -16px 0; } 80% { translate: 16px 0; } }
+@keyframes wp-em-wiggle { 25% { rotate: -6deg; } 75% { rotate: 6deg; } }
+@keyframes wp-em-bounce { 30% { translate: 0 -60px; } 50% { translate: 0 0; } 65% { translate: 0 -24px; } 80% { translate: 0 0; } }
+@keyframes wp-em-spin { to { rotate: 360deg; } }
+@keyframes wp-em-flash { 25%, 75% { opacity: .15; } 50% { opacity: 1; } }
+@keyframes wp-em-jelly { 30% { scale: 1.25 .75; } 45% { scale: .8 1.2; } 60% { scale: 1.1 .9; } 75% { scale: .97 1.03; } }
+@keyframes wp-em-glow { 40%, 60% { scale: 1.4; } }
+/* Move: each object gets its own keyframes (from where it was to its new place), see SlideView. */
+.fx-move { animation-fill-mode: both; }
+.el.trigger { cursor: pointer; }
+/* Editor: where a Move action takes the selected object. */
+.moveTo { position: absolute; z-index: 1; border: calc(2px * var(--k)) dashed #f08a4b; border-radius: 4px; pointer-events: none; }
+.moveTo b { position: absolute; left: 0; top: 0; translate: 0 -100%; padding: 0 calc(5px * var(--k)); background: #f08a4b; color: #1a1a1a; font: 700 calc(12px * var(--k)) / 1.6 system-ui, sans-serif; white-space: nowrap; }
 @keyframes wp-fade { from { opacity: 0; } }
 @keyframes wp-rise { from { opacity: 0; translate: 0 60px; } }
 @keyframes wp-fly-left { from { translate: -1800px 0; } }
@@ -77,7 +124,11 @@ button:disabled { opacity: .45; cursor: default; }
 @keyframes wp-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes wp-blur { from { opacity: 0; filter: blur(24px); scale: 1.08; } }
 @keyframes wp-spin { from { opacity: 0; rotate: -360deg; scale: .2; } }
-@media (prefers-reduced-motion: reduce) { .fx { animation-name: wp-fade !important; animation-duration: .2s !important; } }
+@media (prefers-reduced-motion: reduce) {
+  .fx { animation-name: wp-fade !important; animation-duration: .2s !important; }
+  .fx.leaving { animation-name: wp-out-fade !important; }
+  .fx.still { animation-name: none !important; }
+}
 
 /* Transition layers: the slide leaving and the slide arriving, stacked. */
 .stack { position: absolute; inset: 0; perspective: 2400px; }
@@ -400,7 +451,10 @@ kbd { padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px;
 .animSlide { position: absolute; left: 0; top: 0; width: 1600px; height: 900px; transform: scale(.2); transform-origin: 0 0; }
 .animSample { position: absolute; left: 500px; top: 330px; width: 600px; height: 240px; display: flex; align-items: center; justify-content: center; border-radius: 24px; background: var(--accent); color: #fff; font: 600 64px/1.1 system-ui, sans-serif; text-align: center; overflow: hidden; }
 .frames { display: grid; gap: 4px; overflow-x: auto; }
-.frow { display: grid; grid-template-columns: 64px repeat(6, minmax(78px, 1fr)) 32px; gap: 4px; align-items: center; min-width: 600px; }
+.frow { display: grid; grid-template-columns: 64px repeat(var(--cols, 6), minmax(78px, 1fr)) 32px; gap: 4px; align-items: center; min-width: 600px; }
+.transStage .animSlide { perspective: 2400px; }
+.transLayer { position: absolute; inset: 0; overflow: hidden; }
+.animEditor h4 { margin: 4px 0 0; font-size: 13px; }
 .frow.head span { font-size: 11px; color: var(--dim); font-weight: 600; }
 .form .frow input { padding: 5px 6px; }
 .libBox summary { cursor: pointer; font-weight: 600; font-size: 13px; }
@@ -428,3 +482,15 @@ kbd { padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px;
 .form code { overflow-wrap: anywhere; }
 button.primary.danger { background: #b91c1c; border-color: #b91c1c; color: #fff; }
 button.primary.danger:disabled { opacity: .45; }
+
+/* Inspector: each animation of an object, and the bar shown while setting a Move by dragging. */
+.act { margin: 6px 0 10px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; min-width: 0; }
+.act > * { min-width: 0; }
+.act > button { justify-self: start; white-space: normal; text-align: left; }
+.act .field span { width: 64px; flex: none; }
+.actHead { display: flex; align-items: center; gap: 2px; }
+.actHead b { font-size: 12px; }
+.actHead .icon { min-width: 24px; padding: 2px 4px; line-height: 1; }
+.moveFields { display: grid; gap: 2px; }
+.recordBar { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: #f08a4b; color: #1a1a1a; font-weight: 600; }
+.recordBar span { flex: 1; }

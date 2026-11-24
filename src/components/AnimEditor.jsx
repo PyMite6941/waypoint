@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  EASES, KINDS, PRESETS, PROPS, cleanAnim, easeCss, importLibrary, keyframeName, keyframesCss,
+  EASES, FIRST_PRESET, KINDS, PRESETS, PROPS, cleanAnim, easeCss, importLibrary, keyframeName, keyframesCss,
   library, libraryFile, newAnimId, onLibrary, removeFromLibrary,
 } from '../lib/anims.js';
 import { saveFile } from '../lib/files.js';
@@ -10,11 +10,12 @@ const PREVIEW_ID = 'preview';
 const blankFrame = at => ({ at });
 
 // Make or change a custom animation: keyframes, timing and a live preview, saved to the deck
-// and (optionally) to My animations. `start` is { id, anim } to edit, or null for a new one.
+// and (optionally) to My animations. `start` is { id, anim } to edit, or null for a new one
+// of `kind` (in, out or emphasis).
 // onSave(id, anim, { library }) puts it in the deck (and on the selected object, if any).
-export default function AnimEditor({ start, sample, onSave, onClose }) {
+export default function AnimEditor({ start, kind = 'in', sample, onSave, onClose }) {
   const [id] = useState(() => start?.id || newAnimId());
-  const [anim, setAnim] = useState(() => structuredClone(start?.anim || PRESETS.rise));
+  const [anim, setAnim] = useState(() => structuredClone(start?.anim || PRESETS[FIRST_PRESET[kind]] || PRESETS.rise));
   const [toLibrary, setToLibrary] = useState(() => !start || Boolean(library()[start.id]));
   const [lib, setLib] = useState(library);
   const [play, setPlay] = useState(0);
@@ -27,20 +28,6 @@ export default function AnimEditor({ start, sample, onSave, onClose }) {
   useEffect(() => { const t = setTimeout(() => setPlay(p => p + 1), 250); return () => clearTimeout(t); }, [JSON.stringify(clean)]);   // replay after each change
 
   const set = patch => setAnim(a => ({ ...a, ...patch }));
-  const setFrame = (i, key, value) => setAnim(a => ({
-    ...a, frames: a.frames.map((f, n) => {
-      if (n !== i) return f;
-      const next = { ...f };
-      if (value === '' || value == null) delete next[key]; else next[key] = +value;
-      return next;
-    }),
-  }));
-  const addFrame = () => setAnim(a => {
-    const f = [...a.frames].sort((p, q) => p.at - q.at);
-    const gap = f.reduce((best, x, n) => (n && x.at - f[n - 1].at > best.size ? { size: x.at - f[n - 1].at, at: (x.at + f[n - 1].at) / 2 } : best), { size: 0, at: 50 });
-    return { ...a, frames: [...f, blankFrame(Math.round(gap.at))].sort((p, q) => p.at - q.at) };
-  });
-  const removeFrame = i => setAnim(a => ({ ...a, frames: a.frames.filter((_, n) => n !== i) }));
 
   function save() {
     if (!clean) return setError('An animation needs at least two keyframes, each with a time from 0 to 100%.');
@@ -60,7 +47,6 @@ export default function AnimEditor({ start, sample, onSave, onClose }) {
     catch (err) { setError(err.message); }
   }
 
-  const frames = anim.frames.map((f, i) => ({ f, i }));
   return (
     <Modal title={start ? 'Edit animation' : 'New animation'} onClose={onClose} wide>
       <div className="form animEditor">
@@ -81,13 +67,14 @@ export default function AnimEditor({ start, sample, onSave, onClose }) {
               </label>
             </div>
             <p className="dim">
-              {anim.kind === 'emphasis'
-                ? 'Emphasis: the object stays on the slide and plays when its build comes up.'
-                : 'Entrance: the object is hidden until its build comes up, then plays in.'}{' '}
+              {{
+                emphasis: 'Emphasis: the object is on the slide, plays when its moment comes, then is as before.',
+                out: 'Exit: plays from where the object is; afterwards it stays hidden. End on opacity 0 or off the slide.',
+              }[anim.kind] || 'Entrance: the object is hidden until its moment comes, then plays in.'}{' '}
               Empty boxes mean “as placed on the slide”.
             </p>
             <label>Start from
-              <select value="" onChange={e => { const p = PRESETS[e.target.value] || lib[e.target.value]; if (p) setAnim({ ...structuredClone(p), name: anim.name === PRESETS.rise.name || !anim.name ? p.name : anim.name }); }}>
+              <select value="" onChange={e => { const p = PRESETS[e.target.value] || lib[e.target.value]; if (p) setAnim({ ...structuredClone(p), name: Object.values(PRESETS).some(x => x.name === anim.name) || !anim.name ? p.name : anim.name }); }}>
                 <option value="">Choose a preset…</option>
                 <optgroup label="Presets">{Object.entries(PRESETS).map(([k, p]) => <option key={k} value={k}>{p.name} ({KINDS[p.kind]})</option>)}</optgroup>
                 {Object.keys(lib).length > 0 && <optgroup label="My animations">{Object.entries(lib).map(([k, p]) => <option key={k} value={k}>{p.name}</option>)}</optgroup>}
@@ -97,23 +84,7 @@ export default function AnimEditor({ start, sample, onSave, onClose }) {
           <Preview anim={clean} play={play} sample={sample} onReplay={() => setPlay(p => p + 1)} />
         </div>
 
-        <div className="frames" role="table" aria-label="Keyframes">
-          <div className="frow head" role="row">
-            <span role="columnheader">At %</span>
-            {Object.entries(PROPS).map(([k, [label, , , , unit]]) => <span key={k} role="columnheader">{label}{unit && ` (${unit})`}</span>)}
-            <span />
-          </div>
-          {frames.map(({ f, i }) => (
-            <div className="frow" role="row" key={i}>
-              <input type="number" aria-label="At percent" min={0} max={100} step={1} value={f.at} onChange={e => setFrame(i, 'at', e.target.value === '' ? 0 : e.target.value)} />
-              {Object.entries(PROPS).map(([k, [label, min, max, , ]]) => (
-                <input key={k} type="number" aria-label={label} min={min} max={max} step={k === 'opacity' || k === 'scale' ? 0.05 : 1} value={f[k] ?? ''} placeholder="–" onChange={e => setFrame(i, k, e.target.value)} />
-              ))}
-              <button className="x" title="Remove keyframe" aria-label="Remove keyframe" disabled={anim.frames.length <= 2} onClick={() => removeFrame(i)}>×</button>
-            </div>
-          ))}
-          <button className="link" onClick={addFrame} disabled={anim.frames.length >= 12}>Add keyframe</button>
-        </div>
+        <FrameTable frames={anim.frames} props={PROPS} onChange={frames => set({ frames })} />
 
         <label className="check"><input type="checkbox" checked={toLibrary} onChange={e => setToLibrary(e.target.checked)} /> Also save to My animations, to use in other decks</label>
 
@@ -144,6 +115,43 @@ export default function AnimEditor({ start, sample, onSave, onClose }) {
         <button className="primary" onClick={save}>{sample ? 'Save and use' : 'Save'}</button>
       </footer>
     </Modal>
+  );
+}
+
+// The keyframes of an animation or one side of a transition: a row per keyframe, a column
+// per property (`props`: key -> [label, min, max, default, unit]). Empty means the default.
+export function FrameTable({ frames, props, onChange, label = 'Keyframes', min = 2 }) {
+  const setFrame = (i, key, value) => onChange(frames.map((f, n) => {
+    if (n !== i) return f;
+    const next = { ...f };
+    if (value === '' || value == null) delete next[key]; else next[key] = +value;
+    return next;
+  }));
+  const addFrame = () => {
+    const f = [...frames].sort((p, q) => p.at - q.at);
+    if (!f.length) return onChange([blankFrame(0), blankFrame(100)]);
+    const gap = f.reduce((best, x, n) => (n && x.at - f[n - 1].at > best.size ? { size: x.at - f[n - 1].at, at: (x.at + f[n - 1].at) / 2 } : best), { size: 0, at: f.at(-1).at < 100 ? 100 : 50 });
+    onChange([...f, blankFrame(Math.round(gap.at))].sort((p, q) => p.at - q.at));
+  };
+  const removeFrame = i => onChange(frames.filter((_, n) => n !== i));
+  return (
+    <div className="frames" role="table" aria-label={label} style={{ '--cols': Object.keys(props).length }}>
+      <div className="frow head" role="row">
+        <span role="columnheader">At %</span>
+        {Object.entries(props).map(([k, [name, , , , unit]]) => <span key={k} role="columnheader">{name}{unit && ` (${unit})`}</span>)}
+        <span />
+      </div>
+      {frames.map((f, i) => (
+        <div className="frow" role="row" key={i}>
+          <input type="number" aria-label="At percent" min={0} max={100} step={1} value={f.at} onChange={e => setFrame(i, 'at', e.target.value === '' ? 0 : e.target.value)} />
+          {Object.entries(props).map(([k, [name, lo, hi]]) => (
+            <input key={k} type="number" aria-label={name} min={lo} max={hi} step={k === 'opacity' || k === 'scale' ? 0.05 : 1} value={f[k] ?? ''} placeholder="–" onChange={e => setFrame(i, k, e.target.value)} />
+          ))}
+          <button className="x" title="Remove keyframe" aria-label="Remove keyframe" disabled={frames.length <= min} onClick={() => removeFrame(i)}>×</button>
+        </div>
+      ))}
+      <button className="link" onClick={addFrame} disabled={frames.length >= 12}>Add keyframe</button>
+    </div>
   );
 }
 

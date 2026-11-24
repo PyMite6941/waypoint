@@ -2,6 +2,8 @@
 // `from` (the slide leaving, underneath) and `to` (the slide arriving, on top).
 // `dir` is 1 going forward and -1 going back, so Push and Cover move the right way.
 // Resolves when the transition has finished (or was cut short).
+// A custom transition ('custom:<id>') passes its definition as `custom` (see anims.js).
+import { EASES, transitionKeyframes } from './anims.js';
 
 const ease = 'cubic-bezier(.4, 0, .2, 1)';
 
@@ -65,13 +67,20 @@ function morph(from, to, a, b, dur) {
   return runs;
 }
 
-export function playTransition({ fx, dur = 0.6, dir = 1, from, to, a, b }) {
+export function playTransition({ fx, dur = 0.6, dir = 1, from, to, a, b, custom }) {
   if (!from || !to || !fx || fx === 'none') return Promise.resolve();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ms = Math.max(50, dur * 1000);
   let runs;
   if (reduced) runs = [to.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, fill: 'both' })];
   else if (fx === 'morph') runs = morph(from, to, a, b, ms);
+  else if (custom) {
+    const opts = { duration: ms, easing: (EASES[custom.ease] || EASES['ease-in-out'])[1], fill: 'both' };
+    runs = [
+      custom.out.length > 1 && from.animate(transitionKeyframes(custom.out, dir), opts),
+      custom.in.length > 1 && to.animate(transitionKeyframes(custom.in, dir), opts),
+    ].filter(Boolean);
+  }
   else {
     const f = frames(fx, dir) || frames('fade', dir);
     const half = fx === 'flip';

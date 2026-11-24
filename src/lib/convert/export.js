@@ -5,6 +5,7 @@
 // PDF is done by printing (see App), the Waypoint format by files.js.
 import { animOf, isCustom } from '../anims.js';
 import { BUILDS, THEME_COLORS, buildSteps } from '../deck.js';
+import { actsOf } from '../effects.js';
 
 const IN = 120;                        // slide units per inch: 1600 units = 13.333 in (16:9 widescreen)
 const inch = v => +(v / IN).toFixed(4);
@@ -113,18 +114,26 @@ function transitionXml(t) {
   return `<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"><mc:Choice xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" xmlns:p159="http://schemas.microsoft.com/office/powerpoint/2015/09/main" Requires="${req}"><p:transition spd="${spd}" p14:dur="${ms}"><${fx}/></p:transition></mc:Choice><mc:Fallback><p:transition spd="${spd}"><${fallbackFx}/></p:transition></mc:Fallback></mc:AlternateContent>`;
 }
 
-// PowerPoint's timing tree for entrance effects, one click group per build step.
-// Custom entrance animations go out as a fade (PowerPoint has no keyframes); emphasis ones are left out.
+// PowerPoint's timing tree for entrances and exits, one click group per build step.
+// Custom animations go out as a fade in or out (PowerPoint has no keyframes). Emphasis, moves and
+// anything started by clicking an object are left out: those objects simply show.
 function timingXml(slide, idOf, deck) {
   const steps = buildSteps(slide);
-  const animated = slide.els.filter(e => e.anim?.fx && idOf[e.id] && (BUILDS[e.anim.fx] || (isCustom(e.anim.fx) && animOf(deck, e.anim.fx)?.kind !== 'emphasis')));
+  const animated = slide.els.filter(e => idOf[e.id]).flatMap(e => actsOf(deck, e)
+    .filter(a => !a.on && (a.kind === 'in' || a.kind === 'out') && !(a.entrance && isCustom(a.fx) && animOf(deck, a.fx)?.kind === 'emphasis'))
+    .map(a => ({ el: e, ...a, fx: a.kind === 'out' ? 'out' : BUILDS[a.fx] ? a.fx : 'fade' })));
   if (!animated.length) return '';
   let n = 3;
   const tgt = spid => `<p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl>`;
   const anim = (spid, attr, from, to, dur) => `<p:anim calcmode="lin" valueType="num"><p:cBhvr additive="base"><p:cTn id="${n++}" dur="${dur}" fill="hold"/>${tgt(spid)}<p:attrNameLst><p:attrName>${attr}</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="${from}"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="${to}"/></p:val></p:tav></p:tavLst></p:anim>`;
   const fade = (spid, dur) => `<p:animEffect transition="in" filter="fade"><p:cBhvr><p:cTn id="${n++}" dur="${dur}"/>${tgt(spid)}</p:cBhvr></p:animEffect>`;
-  function effect(el, nodeType) {
-    const spid = idOf[el.id], fx = el.anim.fx, dur = Math.round((fx === 'appear' ? 0.001 : el.anim.dur || 0.5) * 1000), delay = Math.round((el.anim.delay || 0) * 1000);
+  function effect(a, nodeType) {
+    const el = a.el, spid = idOf[el.id], fx = a.fx, dur = Math.round((fx === 'appear' ? 0.001 : a.dur || 0.5) * 1000), delay = Math.round((a.delay || 0) * 1000);
+    if (fx === 'out') {
+      const id = n++, body = `<p:animEffect transition="out" filter="fade"><p:cBhvr><p:cTn id="${n++}" dur="${dur}"/>${tgt(spid)}</p:cBhvr></p:animEffect>`;
+      const hide = `<p:set><p:cBhvr><p:cTn id="${n++}" dur="1" fill="hold"><p:stCondLst><p:cond delay="${Math.max(0, dur - 1)}"/></p:stCondLst></p:cTn>${tgt(spid)}<p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst></p:cBhvr><p:to><p:strVal val="hidden"/></p:to></p:set>`;
+      return `<p:par><p:cTn id="${id}" presetID="10" presetClass="exit" presetSubtype="0" fill="hold" nodeType="${nodeType}"><p:stCondLst><p:cond delay="${delay}"/></p:stCondLst><p:childTnLst>${body}${hide}</p:childTnLst></p:cTn></p:par>`;
+    }
     const [preset, sub, body] = {
       appear: [1, 0, ''],
       'fly-left': [2, 8, anim(spid, 'ppt_x', '0-#ppt_w/2', '#ppt_x', dur) + anim(spid, 'ppt_y', '#ppt_y', '#ppt_y', dur)],
@@ -143,7 +152,7 @@ function timingXml(slide, idOf, deck) {
   }
   let groups = '';
   for (let step = 0; step <= steps; step++) {
-    const els = animated.filter(e => (e.anim.step || 0) === step);
+    const els = animated.filter(a => (a.step || 0) === step);
     if (!els.length) continue;
     const start = step === 0 ? '<p:cond delay="indefinite"/><p:cond evt="onBegin" delay="0"><p:tn val="2"/></p:cond>' : '<p:cond delay="indefinite"/>';
     const outer = n++, inner = n++;

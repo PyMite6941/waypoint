@@ -14,6 +14,7 @@
 // link importer understands. Everything from a feed is treated as untrusted: only https links,
 // limited sizes, plain text only, and decks go through cleanDeck like any opened file.
 import { cleanDeck, uid } from './deck.js';
+import { copyEls } from './effects.js';
 import { kvDelete, kvGet, kvSet } from './store.js';
 
 export const OFFICIAL_FEEDS = [
@@ -134,7 +135,7 @@ export async function deleteMyTemplate(id) {
  */
 export function freshCopy(deck) {
   const d = structuredClone(deck), ids = new Map();
-  for (const s of d.slides) { ids.set(s.id, uid()); s.id = ids.get(s.id); for (const e of s.els) e.id = uid(); }
+  for (const s of d.slides) { ids.set(s.id, uid()); s.id = ids.get(s.id); s.els = copyEls(s.els, uid); }
   for (const s of d.slides) {
     s.next = s.next.map(n => ids.get(n)).filter(Boolean);
     for (const e of s.els) if (e.link) e.link = ids.get(e.link);

@@ -113,7 +113,9 @@ final class Deck {
             a.forEach((k, v) -> { if (v instanceof String src && src.startsWith("data:image/")) assets.put(String.valueOf(k), src); });
 
         // Custom animations (made in the web or desktop app) play here as a fade; emphasis ones,
-        // which act on an object already on the slide, leave it showing all along.
+        // which act on an object already on the slide, leave it showing all along. So do entrances
+        // started by clicking another object (triggers). Later actions (el.acts: exits, moves,
+        // emphasis) are not played here; the object stays where it was placed.
         java.util.Set<String> emphasis = new java.util.HashSet<>();
         if (d.get("anims") instanceof Map<?, ?> an)
             an.forEach((k, v) -> { if (v instanceof Map<?, ?> m && "emphasis".equals(m.get("kind"))) emphasis.add("custom:" + k); });
@@ -138,7 +140,7 @@ final class Deck {
 
     private static El el(Map<?, ?> e, java.util.Set<String> emphasis) {
         Anim anim = null;
-        if (e.get("anim") instanceof Map<?, ?> a && a.get("fx") instanceof String fx && !fx.isEmpty() && !emphasis.contains(fx))
+        if (e.get("anim") instanceof Map<?, ?> a && a.get("fx") instanceof String fx && !fx.isEmpty() && !emphasis.contains(fx) && !(a.get("on") instanceof String))
             anim = new Anim(fx, (int) num(a.get("step"), 0), num(a.get("dur"), 0.5), num(a.get("delay"), 0));
         List<Para> rich = null;
         if (e.get("rich") instanceof List<?> ps && !ps.isEmpty()) {

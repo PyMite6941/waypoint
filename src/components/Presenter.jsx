@@ -31,6 +31,7 @@ function Clock() {
 export default function Presenter({ deck, start = 0, where, onEnd }) {
   const [at, setAt] = useState(start);
   const [b, setB] = useState(0);   // build step the audience is on
+  const [taps, setTaps] = useState({});   // clicks on trigger objects there
   const [num, setNum] = useState('');
   const [cols, setColsState] = useState(savedCols);
   const setCols = n => { setColsState(n); saveCols(n); };
@@ -44,7 +45,7 @@ export default function Presenter({ deck, start = 0, where, onEnd }) {
 
   useEffect(() => {
     const stop = listen(m => {
-      if (m.type === 'state') { setAt(m.i); setB(m.b || 0); setVisited(v => new Set(v).add(m.i)); }
+      if (m.type === 'state') { setAt(m.i); setB(m.b || 0); setTaps(m.taps && typeof m.taps === 'object' ? m.taps : {}); setVisited(v => new Set(v).add(m.i)); }
       else if (m.type === 'ended') end.current(m.i, true);
     });
     send({ type: 'hello' });
@@ -84,6 +85,8 @@ export default function Presenter({ deck, start = 0, where, onEnd }) {
   // The big click targets ignore the click that only brought this window to the front.
   const goto = j => { if (!justFocused()) send({ type: 'goto', i: j }); };
   const nextClick = () => { if (!justFocused()) send({ type: 'step', d: 1 }); };
+  // Clicking a trigger object on the current slide plays it for the audience.
+  const nowClick = e => { const t = e.target.closest('[data-trigger]'); if (t && !justFocused()) send({ type: 'tap', id: t.dataset.id }); };
 
   return (
     // Keep focus off buttons so Space never double-fires; the size slider still needs its mousedown.
@@ -104,10 +107,10 @@ export default function Presenter({ deck, start = 0, where, onEnd }) {
 
       <div className="pvLeft">
         <h2>Current · {i + 1}{steps > 0 && <span className="pvBuild"> · build {b} of {steps}</span>}</h2>
-        <Fit className="pvNow"><SlideView deck={deck} slide={slide} build={b} /></Fit>
+        <Fit className="pvNow" onClick={nowClick}><SlideView deck={deck} slide={slide} build={b} taps={taps} /></Fit>
         <h2>{moreBuilds ? `Next · build ${b + 1} of ${steps}` : `Next${after ? ` · ${i + 2}` : ''}`}</h2>
         {moreBuilds
-          ? <Fit className="pvNext" onClick={nextClick}><SlideView deck={deck} slide={slide} build={b + 1} /></Fit>
+          ? <Fit className="pvNext" onClick={nextClick}><SlideView deck={deck} slide={slide} build={b + 1} taps={taps} /></Fit>
           : after
             ? <Fit className="pvNext" onClick={nextClick}><SlideView deck={deck} slide={after} build={0} /></Fit>
             : <div className="pvNext"><p>End of deck</p></div>}

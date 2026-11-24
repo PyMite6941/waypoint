@@ -2,22 +2,26 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { buildSteps, choicesOf, clampIndex, indexOfId, slideTitle } from '../lib/deck.js';
 import { listen, send } from '../lib/store.js';
 import { playTransition } from '../lib/transitions.js';
+import { triggerSteps } from '../lib/effects.js';
+import { transitionOf } from '../lib/anims.js';
 import { actionOf, clickerSettings, justFocused } from '../lib/clicker.js';
 import SlideView, { Fit, Thumb } from './SlideView.jsx';
 
 // What the audience sees. Owns the current position (slide `i`, build step `b`) and the
 // trail of slides visited, so Backspace can return to wherever the presenter jumped from.
 // Next plays the slide's builds one click at a time before moving on; Previous steps back
-// through them without animation, like Keynote.
+// through them without animation, like Keynote. Clicking an object that is a trigger plays
+// the actions waiting on it (taps counts its clicks on this slide).
 // With `audience` it is the slides window opened by Present: leaving full screen keeps
 // the show going, since that window sits on a projector the presenter may not be facing.
 // `enter` plays the first slide's transition in from the slide before it (used by Preview in the editor).
 export default function Show({ deck, start, fullscreen, audience, enter, onMove, onExit }) {
-  // play: the build step whose effects run now (null: show it still). n counts slide changes; last is where we came from.
+  // play: what runs now, a build step or { on: trigger id, step } (null: show it still); k replays it.
+  // n counts slide changes; last is where we came from.
   const [s, setS] = useState(() => {
     const i = clampIndex(deck, start);
-    const last = enter && i > 0 ? { i: i - 1, b: buildSteps(deck.slides[i - 1]), dir: 1 } : null;
-    return { i, b: 0, play: 0, n: last ? 1 : 0, last, trail: [], num: '', grid: false, pick: 0, black: false };
+    const last = enter && i > 0 ? { i: i - 1, b: buildSteps(deck.slides[i - 1]), taps: {}, dir: 1 } : null;
+    return { i, b: 0, taps: {}, play: 0, k: 0, n: last ? 1 : 0, last, trail: [], num: '', grid: false, pick: 0, black: false };
   });
   const [awake, setAwake] = useState(false);
   const [full, setFull] = useState(!!document.fullscreenElement);
@@ -30,23 +34,30 @@ export default function Show({ deck, start, fullscreen, audience, enter, onMove,
   const moveTo = (target, full = false) => setS(p => {
     const i = clampIndex(deck, typeof target === 'function' ? target(p.i) : target);
     if (i === p.i) return { ...p, grid: false, num: '' };
-    return { ...p, i, b: full ? buildSteps(deck.slides[i]) : 0, play: full ? null : 0, n: p.n + 1, last: { i: p.i, b: p.b, dir: i > p.i ? 1 : -1 }, trail: [...p.trail, p.i], grid: false, num: '' };
+    return { ...p, i, b: full ? buildSteps(deck.slides[i]) : 0, taps: {}, play: full ? null : 0, k: p.k + 1, n: p.n + 1, last: { i: p.i, b: p.b, taps: p.taps, dir: i > p.i ? 1 : -1 }, trail: [...p.trail, p.i], grid: false, num: '' };
   });
   const next = () => setS(p => {
-    if (p.b < buildSteps(deck.slides[p.i])) return { ...p, b: p.b + 1, play: p.b + 1, num: '' };
+    if (p.b < buildSteps(deck.slides[p.i])) return { ...p, b: p.b + 1, play: p.b + 1, k: p.k + 1, num: '' };
     const i = clampIndex(deck, p.i + 1);
-    return i === p.i ? p : { ...p, i, b: 0, play: 0, n: p.n + 1, last: { i: p.i, b: p.b, dir: 1 }, trail: [...p.trail, p.i], num: '' };
+    return i === p.i ? p : { ...p, i, b: 0, taps: {}, play: 0, k: p.k + 1, n: p.n + 1, last: { i: p.i, b: p.b, taps: p.taps, dir: 1 }, trail: [...p.trail, p.i], num: '' };
   });
   const prev = () => setS(p => {
     if (p.b > 0) return { ...p, b: p.b - 1, play: null, num: '' };
     const i = clampIndex(deck, p.i - 1);
-    return i === p.i ? p : { ...p, i, b: buildSteps(deck.slides[i]), play: null, n: p.n + 1, last: { i: p.i, b: p.b, dir: -1 }, trail: [...p.trail, p.i], num: '' };
+    return i === p.i ? p : { ...p, i, b: buildSteps(deck.slides[i]), taps: {}, play: null, n: p.n + 1, last: { i: p.i, b: p.b, taps: p.taps, dir: -1 }, trail: [...p.trail, p.i], num: '' };
   });
   const step = d => (d > 0 ? next() : prev());
+  // A click on trigger object `id`: its next action plays; after its last, it starts over.
+  const tap = id => setS(p => {
+    const max = triggerSteps(deck.slides[p.i], id);
+    if (!max) return p;
+    const n = (p.taps[id] || 0) >= max ? 1 : (p.taps[id] || 0) + 1;
+    return { ...p, taps: { ...p.taps, [id]: n }, play: { on: id, step: n }, k: p.k + 1, num: '' };
+  });
   const back = () => setS(p => {
     if (!p.trail.length) return { ...p, grid: false, num: '' };
     const i = clampIndex(deck, p.trail.at(-1));
-    return { ...p, i, b: buildSteps(deck.slides[i]), play: null, n: p.n + 1, last: { i: p.i, b: p.b, dir: -1 }, trail: p.trail.slice(0, -1), grid: false, num: '' };
+    return { ...p, i, b: buildSteps(deck.slides[i]), taps: {}, play: null, n: p.n + 1, last: { i: p.i, b: p.b, taps: p.taps, dir: -1 }, trail: p.trail.slice(0, -1), grid: false, num: '' };
   });
   const toggleBlack = () => setS(p => ({ ...p, black: !p.black, num: '' }));
   const toggleGrid = () => setS(p => ({ ...p, grid: !p.grid, pick: p.i, num: '' }));
@@ -62,7 +73,7 @@ export default function Show({ deck, start, fullscreen, audience, enter, onMove,
     if (!leaving || leaving.n !== s.n) return;
     const to = deck.slides[s.i], a = deck.slides[leaving.i];
     let done = false;
-    playTransition({ fx: to.trans.fx, dur: to.trans.dur, dir: leaving.dir, from: layers.current.out, to: layers.current.in, a, b: to })
+    playTransition({ fx: to.trans.fx, dur: to.trans.dur, dir: leaving.dir, from: layers.current.out, to: layers.current.in, a, b: to, custom: transitionOf(deck, to.trans.fx) })
       .then(() => { if (!done) setLeaving(l => (l?.n === leaving.n ? null : l)); });
     return () => { done = true; };
   }, [leaving]);
@@ -88,18 +99,19 @@ export default function Show({ deck, start, fullscreen, audience, enter, onMove,
   }, []);
 
   // Keep the presenter window in step, and take its requests.
-  const pos = useRef({ i: s.i, b: s.b });
-  pos.current = { i: s.i, b: s.b };
-  useEffect(() => { send({ type: 'state', i: s.i, b: s.b }); onMove?.(s.i); }, [s.i, s.b]);
+  const pos = useRef({ i: s.i, b: s.b, taps: s.taps });
+  pos.current = { i: s.i, b: s.b, taps: s.taps };
+  useEffect(() => { send({ type: 'state', i: s.i, b: s.b, taps: s.taps }); onMove?.(s.i); }, [s.i, s.b, s.taps]);
   // Messages and background clicker keys arrive outside React; always use this render's deck.
   const live = useRef();
-  live.current = { moveTo, step, back, toggleBlack };
+  live.current = { moveTo, step, back, toggleBlack, tap };
   useEffect(() => listen(m => {
     const a = live.current;
     if (m.type === 'hello') send({ type: 'state', ...pos.current });
     else if (m.type === 'goto') a.moveTo(m.i);
     else if (m.type === 'step') a.step(m.d);
     else if (m.type === 'back') a.back();
+    else if (m.type === 'tap' && typeof m.id === 'string') a.tap(m.id);
     else if (m.type === 'black') a.toggleBlack();
   }), []);
 
@@ -153,6 +165,8 @@ export default function Show({ deck, start, fullscreen, audience, enter, onMove,
       if (picked) moveTo(+picked.dataset.i);
       return;
     }
+    const trigger = e.target.closest('[data-trigger]');
+    if (trigger) return tap(trigger.dataset.id);
     const j = indexOfId(deck, e.target.closest('[data-link]')?.dataset.link);
     if (j >= 0) moveTo(j); else next();
   }
@@ -182,11 +196,11 @@ export default function Show({ deck, start, fullscreen, audience, enter, onMove,
           <div className="stack">
             {leaving && deck.slides[leaving.i] && (
               <div className="layer" key={`out${leaving.n}`} ref={n => { layers.current.out = n; }}>
-                <SlideView deck={deck} slide={deck.slides[leaving.i]} build={leaving.b} />
+                <SlideView deck={deck} slide={deck.slides[leaving.i]} build={leaving.b} taps={leaving.taps} />
               </div>
             )}
             <div className="layer" key={`in${s.n}`} ref={n => { layers.current.in = n; }}>
-              <SlideView deck={deck} slide={slide} build={s.b} fx={s.play} fxDelay={s.play === 0 && slide.trans?.fx && s.last ? slide.trans.dur || 0.6 : 0} />
+              <SlideView deck={deck} slide={slide} build={s.b} taps={s.taps} fx={s.play} fxKey={s.k} fxDelay={s.play === 0 && slide.trans?.fx && s.last ? slide.trans.dur || 0.6 : 0} />
             </div>
           </div>
         </Fit>

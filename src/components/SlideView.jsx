@@ -1,6 +1,7 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GEOMS, H, W } from '../lib/deck.js';
-import { animOf, easeCss, isCustom, keyframeName, keyframesCss } from '../lib/anims.js';
+import { EASES, animOf, customId, easeCss, isCustom, keyframeName, keyframesCss } from '../lib/anims.js';
+import { BUILT_IN, KIND_NAMES, actsOf, startsAt, stateOf, triggersOf } from '../lib/effects.js';
 import { fontStack } from '../lib/fonts.js';
 
 const CORNERS = ['nw', 'ne', 'sw', 'se'];
@@ -67,43 +68,71 @@ function Line({ el }) {
 
 // One slide at its natural 1600 x 900 size. Everything that shows a slide uses this:
 // the stage, thumbnails, the show, presenter view and print.
-// Builds: with `build` set, objects whose build step is later stay hidden, and objects of
-// step `fx` play their entrance effect (step 0 after `fxDelay` seconds, the slide's transition).
+// Effects (see effects.js): with `build` set (the slide's click count) and `taps` (how often
+// each trigger object was clicked), objects show where and as their actions have left them,
+// and the actions starting at `fx` play: a step number, or { on, step } for a trigger's click.
+// Step 0 waits `fxDelay` seconds (the slide's transition). A new `fxKey` replays.
 // `sel`, `live` (a rectangle overriding one element mid-drag), `guides`, `badges` and `editing` are only used by the stage.
-function SlideView({ deck, slide, sel, live, guides, editing, onEditDone, build, fx = null, fxDelay = 0, badges }) {
+const n2 = v => (Number.isFinite(+v) ? Math.round(+v * 100) / 100 : 0);
+function SlideView({ deck, slide, sel, live, guides, editing, onEditDone, build, taps, fx = null, fxKey = 0, fxDelay = 0, badges }) {
   const bg = slide.bgImg && deck.assets[slide.bgImg]
     ? { background: `${slide.bg || 'var(--bg)'} url("${deck.assets[slide.bgImg]}") center / cover no-repeat` }
     : slide.bg ? { background: slide.bg } : undefined;
-  // Custom animations this slide plays: their keyframes go in with it (only when it can play).
-  const custom = build !== undefined && deck.anims && slide.els.some(e => isCustom(e.anim?.fx))
-    ? Object.fromEntries(slide.els.filter(e => animOf(deck, e.anim?.fx)).map(e => [e.anim.fx.slice(7), animOf(deck, e.anim.fx)]))
-    : null;
+  const playable = build !== undefined;
+  const ev = fx === null || fx === undefined ? null : typeof fx === 'number' ? { on: null, step: fx } : fx;
+  const triggers = playable ? triggersOf(slide) : null;
+  // Keyframes this slide needs while it plays: its custom animations, and one per moving object.
+  const custom = {}, moves = [];
+  const rendered = slide.els.map((el, index) => {
+    if (!playable) return { el, g: el, visible: true };
+    const now = stateOf(deck, el, build, taps);
+    const act = ev && actsOf(deck, el).filter(a => startsAt(a, ev)).at(-1);   // the one that plays now
+    if (!act) return { el, g: now.g, visible: now.visible };
+    const own = isCustom(act.fx) ? animOf(deck, act.fx) : null;
+    if (own) custom[customId(act.fx)] = own;
+    const out = { el, g: now.g, visible: now.visible || act.kind === 'out', act, own };
+    if (act.kind === 'move') {
+      const was = stateOf(deck, el, build, taps, ev).g, g = now.g;
+      const sx = was.w / (g.w || 1), sy = was.h / (g.h || 1), keep = el.type === 'text' ? Math.sqrt(sx * sy) : null;
+      out.move = `wpm-${index}`;
+      moves.push(`@keyframes wpm-${index} { from { translate: ${n2(was.x + was.w / 2 - (g.x + g.w / 2))}px ${n2(was.y + was.h / 2 - (g.y + g.h / 2))}px; scale: ${keep ? n2(keep) : `${n2(sx)} ${n2(sy)}`}; rotate: ${n2(was.rot - g.rot)}deg; } }`);
+    }
+    return out;
+  });
+  const css = (Object.keys(custom).length ? keyframesCss(custom) : '') + moves.join('\n');
   return (
     <div className={`slide t-${deck.theme}`}>
-      {custom && <style>{keyframesCss(custom)}</style>}
+      {css && <style>{css}</style>}
       <div className="bgl" style={bg} />
-      {slide.els.map(el => {
-        const r = live?.id === el.id ? live : el;
-        const step = el.anim?.fx ? el.anim.step || 0 : -1;
-        const own = isCustom(el.anim?.fx) ? animOf(deck, el.anim.fx) : null;   // a custom animation (null: built in, or missing)
-        const hidden = build !== undefined && step > build && own?.kind !== 'emphasis';
-        const playing = !hidden && fx !== null && build !== undefined && step === fx;
+      {rendered.map(({ el, g, visible, act, own, move }) => {
+        const r = live?.id === el.id ? live : g;
+        const hidden = !visible;
+        const playing = !!act;
         const style = { left: r.x, top: r.y, width: r.w, height: r.h };
-        if (el.rot) style.transform = `rotate(${el.rot}deg)`;
+        const rot = live?.id === el.id ? el.rot : g.rot;
+        if (rot) style.transform = `rotate(${rot}deg)`;
         if (el.opacity != null && el.opacity < 1) style.opacity = el.opacity;
         if (el.lineW && el.type !== 'line' && !el.path) style.border = `${el.lineW}px solid ${el.line || 'var(--fg)'}`;
         if (el.radius != null) style.borderRadius = el.radius;
         if (el.geom && el.type !== 'line') style.clipPath = clipOf(el.geom);
+        let fxClass = '';
         if (playing) {
-          style.animationDuration = `${el.anim.fx === 'appear' ? 0.01 : el.anim.dur || own?.dur || 0.5}s`;
-          if (own) { style['--fx'] = keyframeName(el.anim.fx.slice(7)); style.animationTimingFunction = easeCss(own); }
-          style.animationDelay = `${(step === 0 ? fxDelay : 0) + (el.anim.delay || 0)}s`;
+          const instant = act.fx === 'appear' || act.fx === 'out-vanish';
+          style.animationDuration = `${instant ? 0.01 : act.dur || own?.dur || 0.5}s`;
+          if (move) { style['--fx'] = move; style.animationTimingFunction = (EASES[act.fx] || EASES['ease-in-out'])[1]; }
+          else if (own) { style['--fx'] = keyframeName(customId(act.fx)); style.animationTimingFunction = easeCss(own); }
+          style.animationDelay = `${(!act.on && (act.step || 0) === 0 ? fxDelay : 0) + (act.delay || 0)}s`;
+          const known = act.kind !== 'move' && !isCustom(act.fx) && (act.fx in (BUILT_IN[act.kind] || {}) || (act.kind === 'emphasis' && act.fx in BUILT_IN.in));
+          const name = move ? 'move' : own ? 'custom' : known ? act.fx : act.kind === 'out' ? 'out-fade' : act.kind === 'emphasis' ? 'em-pulse' : 'fade';
+          fxClass = ` fx fx-${name}${act.kind === 'out' ? ' leaving' : ''}${act.kind === 'move' || act.kind === 'emphasis' ? ' still' : ''}`;
         }
         const common = {
           'data-id': el.id,
           'data-link': el.link && deck.slides.some(s => s.id === el.link) ? el.link : undefined,
+          'data-trigger': triggers?.has(el.id) ? '' : undefined,
         };
-        const cls = `el ${el.type}${sel === el.id ? ' sel' : ''}${hidden ? ' pending' : ''}${playing ? ` fx fx-${isCustom(el.anim.fx) ? (own ? 'custom' : 'fade') : el.anim.fx}` : ''}`;
+        const cls = `el ${el.type}${sel === el.id ? ' sel' : ''}${hidden ? ' pending' : ''}${triggers?.has(el.id) ? ' trigger' : ''}${fxClass}`;
+        const key = playing ? `${el.id}~${fxKey}` : el.id;
         const handles = sel === el.id && editing !== el.id && CORNERS.map(c => <i key={c} className={`handle ${c}`} data-corner={c} />);
 
         if (el.type === 'text') {
@@ -115,7 +144,7 @@ function SlideView({ deck, slide, sel, live, guides, editing, onEditDone, build,
             padding: el.pad ? el.pad.map(v => `${v}px`).join(' ') : undefined,
           });
           return (
-            <div key={el.id} {...common} className={cls + (el.fill ? ' filled' : '')} style={style}>
+            <div key={key} {...common} className={cls + (el.fill ? ' filled' : '')} style={style}>
               {/* The key remounts the node after an edit, so React never patches text the browser rewrote. */}
               <TextBody key={editing === el.id ? 'edit' : 'view'} el={el} editing={editing === el.id} onDone={onEditDone} />
               {handles}
@@ -123,16 +152,16 @@ function SlideView({ deck, slide, sel, live, guides, editing, onEditDone, build,
           );
         }
         if (el.type === 'image') {
-          return <div key={el.id} {...common} className={cls} style={style}><Img src={deck.assets[el.src]} crop={el.crop} />{handles}</div>;
+          return <div key={key} {...common} className={cls} style={style}><Img src={deck.assets[el.src]} crop={el.crop} />{handles}</div>;
         }
         if (el.type === 'line') {
-          return <div key={el.id} {...common} className={cls} style={style}><Line el={el} />{handles}</div>;
+          return <div key={key} {...common} className={cls} style={style}><Line el={el} />{handles}</div>;
         }
         if (el.path) {   // a freeform outline (imported)
           const k = Math.sqrt((el.path.w / Math.max(el.w, 1)) * (el.path.h / Math.max(el.h, 1)));
           const flip = `${el.flip?.includes('h') ? `translate(${el.path.w} 0) scale(-1 1) ` : ''}${el.flip?.includes('v') ? `translate(0 ${el.path.h}) scale(1 -1)` : ''}`;
           return (
-            <div key={el.id} {...common} className={`${cls} path`} style={style}>
+            <div key={key} {...common} className={`${cls} path`} style={style}>
               <svg width="100%" height="100%" viewBox={`0 0 ${el.path.w} ${el.path.h}`} preserveAspectRatio="none" overflow="visible">
                 <path d={el.path.d} transform={flip || undefined} fill={el.fill || 'var(--accent)'} stroke={el.lineW ? el.line || 'var(--fg)' : 'none'} strokeWidth={(el.lineW || 0) * k} />
               </svg>
@@ -140,11 +169,18 @@ function SlideView({ deck, slide, sel, live, guides, editing, onEditDone, build,
             </div>
           );
         }
-        return <div key={el.id} {...common} className={cls} style={{ ...style, background: el.fill || undefined }}>{handles}</div>;
+        return <div key={key} {...common} className={cls} style={{ ...style, background: el.fill || undefined }}>{handles}</div>;
       })}
-      {badges && slide.els.map(el => el.anim?.fx && (
-        <b key={`b${el.id}`} className="badge" style={{ left: el.x, top: el.y }} title="Build order">{el.anim.step || '◦'}</b>
-      ))}
+      {badges && slide.els.map(el => {
+        const acts = actsOf(deck, el);
+        if (!acts.length) return null;
+        const label = acts.map(a => (a.on ? '⚡' : '') + (a.step || '◦')).join(' ');
+        const title = acts.map(a => `${KIND_NAMES[a.kind]}: ${a.on ? `click ${a.step} on another object` : a.step ? `click ${a.step}` : 'with the slide'}`).join('\n');
+        return <b key={`b${el.id}`} className="badge" style={{ left: el.x, top: el.y }} title={title}>{label}</b>;
+      })}
+      {badges && slide.els.filter(el => el.id === sel).flatMap(el => (el.acts || []).map((a, i) => a.kind === 'move' && a.to && (
+        <i key={`m${i}`} className="moveTo" style={{ left: a.to.x, top: a.to.y, width: a.to.w, height: a.to.h, transform: a.to.rot ? `rotate(${a.to.rot}deg)` : undefined }}><b>Move {a.on ? `⚡${a.step}` : a.step || '◦'}</b></i>
+      )))}
       {guides?.x != null && <i className="guide v" style={{ left: guides.x }} />}
       {guides?.y != null && <i className="guide h" style={{ top: guides.y }} />}
     </div>
@@ -156,7 +192,7 @@ function SlideView({ deck, slide, sel, live, guides, editing, onEditDone, build,
 // objects (see state.js), so editing one slide leaves every other thumbnail alone.
 const idsKey = new WeakMap();
 const idsOf = slides => { let k = idsKey.get(slides); if (k === undefined) { k = slides.map(s => s.id).join(' '); idsKey.set(slides, k); } return k; };
-const sameLook = (a, b) => a === b || (a.theme === b.theme && a.assets === b.assets && a.anims === b.anims && (a.slides === b.slides || idsOf(a.slides) === idsOf(b.slides)));
+const sameLook = (a, b) => a === b || (a.theme === b.theme && a.assets === b.assets && a.anims === b.anims && a.transitions === b.transitions && (a.slides === b.slides || idsOf(a.slides) === idsOf(b.slides)));
 export function sameProps(p, n) {
   for (const k of new Set([...Object.keys(p), ...Object.keys(n)])) {
     if (k === 'deck' ? !sameLook(p.deck, n.deck) : p[k] !== n[k]) return false;

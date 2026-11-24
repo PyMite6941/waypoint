@@ -71,7 +71,8 @@ In the app: **File, Uninstall Waypoint…**. It quits and removes itself, and ca
 - **Generate slides with AI** (edit mode, Ctrl+G) using your own provider: an Anthropic, OpenAI, Gemini, OpenRouter, Groq, Mistral, DeepSeek or xAI key, any OpenAI-compatible address, a local model (Ollama, LM Studio), a ChatGPT plan or Google account through the Codex CLI or Gemini CLI (desktop app), or copy and paste with any chat app, which opens ChatGPT, Claude, Gemini or Copilot with the prompt copied (the only way to use Claude Pro or Max, since Anthropic does not let other apps use that login). Keys are kept in a `.env` file; a provider can have several, and Waypoint counts each key's monthly tokens and switches automatically when one is rate limited, out of credit or over a limit you set. Set it up in File, AI settings. You review the slides before they go in, and one Undo takes them out
 - Slide layouts on **+ Slide** (title, bullets, section, two columns, quote, blank) and a shortcuts sheet on **?**
 - Slide transitions (fade, push, cover, wipe, zoom, flip, cube, morph) and click-by-click build animations, the same on web, desktop and Java
-- Custom animations: a keyframe editor (move, scale, turn, fade, blur, with easing) for entrance and emphasis effects; they are saved in the deck, and in My animations for reuse in other decks, with export and import
+- Object animations: entrances, emphasis, exits and **moves to a place you set** (type it or drag the object there), each on the slide, on a click, or **when another object is clicked** (triggers; clicking again can hide what the first click showed)
+- Custom animations and custom transitions: keyframe editors (move, scale, turn, fade, blur, with easing; transitions set the leaving and arriving slide, with 3D turns). They are saved in the deck, and in My animations and My transitions for reuse in other decks, with export and import
 - Templates: File, New from template opens a gallery read from the website (with an offline copy), your own saved templates, any Google Slides or PowerPoint link, and other galleries anyone can publish as a JSON file
 - Import PowerPoint (.pptx and 97-2003 .ppt), Keynote, OpenDocument (.odp, LibreOffice), Google Slides (link or .pptx), PDF, Markdown and pictures, or open a presentation from a link (Google Slides, or a file on OneDrive, SharePoint, Google Drive or Dropbox): it is downloaded, its type is read from its bytes, and File, Update from link fetches the latest version later, keeping layout and colours; export to PowerPoint, Google Slides, PDF, PNG or `.waypoint.json`
 - Installs as an app with its own taskbar, Dock or Start menu icon, either from the browser (Chrome/Edge install, Safari's Add to Dock) or as the desktop app; File, Install as an app explains pinning for your system. Installed, it opens presentations you double-click or drop on its icon
@@ -104,7 +105,8 @@ One React app, two shells. The web build is what GitHub Pages serves. The deskto
 | `src/lib/files.js` | Opening and saving files (native dialogs on desktop, upload/download on web) |
 | `src/lib/convert/` | Import and export. `links.js` turns share links into downloads (desktop `net:get`, the dev server's `/__waypoint/fetch`, or the browser) and sniffs the file type; `import.js` picks the reader by file type: `pptx-import.js`, `ppt-import.js` (97-2003 binary), `keynote-import.js` (`.key`: Snappy + protobuf), `odp-import.js` with `odf-shapes.js` (OpenDocument custom shapes). Shared helpers in `util.js`; export in `export.js`. **Add new file types here** |
 | `src/lib/install.js` | Installing as an app, and presentations opened from the system (the desktop app's `open-files`, the web app's `launchQueue`) |
-| `src/lib/transitions.js` | Slide transitions and build effects |
+| `src/lib/transitions.js` | Slide transitions (built in, morph and custom) |
+| `src/lib/effects.js`, `src/components/Effects.jsx` | What objects do while presenting: entrances, emphasis, exits, moves and triggers, and the inspector's Animations and Transition sections |
 | `src/lib/clickerDevices.js`, `src/components/ClickerMenu.jsx` | The Clicker menu: paired Bluetooth devices (`bluetooth:devices` IPC: PowerShell PnP on Windows, `system_profiler` on macOS, `bluetoothctl` on Linux) or WebHID, the chosen clicker and its connection |
 | `src/lib/clicker.js` | What each key does in a show, taught clicker keys, background keys for the desktop app |
 | `src/lib/updates.js` | Update checks: `version.json` on the web, electron-updater on desktop |
@@ -127,7 +129,7 @@ One React app, two shells. The web build is what GitHub Pages serves. The deskto
 | `desktop/` | Electron window, `app://` file server, the `window.desktop` file bridge |
 | `public/docs/` | User guide, published alongside the app |
 | `public/templates/` | The template gallery (`index.json` plus decks), also bundled into the app |
-| `src/lib/anims.js`, `src/lib/templates.js` | Custom animations and templates |
+| `src/lib/anims.js`, `src/lib/templates.js` | Custom animations and transitions (`AnimEditor.jsx`, `TransitionEditor.jsx`), and templates |
 | `public/sw.js`, `src/lib/offline.js` | Offline support and install for the web version |
 | `public/icon.svg`, `build/icon.png` | App icon (web and installers) |
 | `.github/workflows/pages.yml` | Builds and deploys to GitHub Pages on every push to `main` |
